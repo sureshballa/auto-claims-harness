@@ -1,0 +1,438 @@
+[
+  {
+    "claim_number": "CLM-00001",
+    "policy_number": "POL-00028",
+    "vehicle_vin": "1HGCM000000000033",
+    "incident": {
+      "incident_type": "collision",
+      "incident_date": "2024-10-01",
+      "description": "Sideswiped while merging on the highway.",
+      "location": "Chicago, IL",
+      "police_report_number": null,
+      "injuries_reported": false,
+      "other_parties_involved": false
+    },
+    "damage": {
+      "assessed_amount": "130.28",
+      "assessment_source": "shop_estimate",
+      "confidence": "0.85"
+    },
+    "status": "open",
+    "created_at": "2026-04-24",
+    "decided_at": null
+  },
+  {
+    "claim_number": "CLM-00002",
+    "policy_number": "POL-00022",
+    "vehicle_vin": "1HGCM000000000026",
+    "incident": {
+      "incident_type": "collision",
+      "incident_date": "2026-06-29",
+      "description": "Rear-ended at red light.",
+      "location": "Atlanta, GA",
+      "police_report_number": null,
+      "injuries_reported": false,
+      "other_parties_involved": false
+    },
+    "damage": {
+      "assessed_amount": "371.6",
+      "assessment_source": "shop_estimate",
+      "confidence": "0.85"
+    },
+    "status": "open",
+    "created_at": "2026-04-24",
+    "decided_at": null
+  },
+  {
+    "claim_number": "CLM-00003",
+    "policy_number": "POL-00017",
+    "vehicle_vin": "1HGCM000000000020",
+    "incident": {
+      "incident_type": "collision",
+      "incident_date": "2025-03-13",
+      "description": "Front-end collision at intersection.",
+      "location": "Seattle, WA",
+      "police_report_number": null,
+      "injuries_reported": false,
+      "other_parties_involved": false
+    },
+    "damage": {
+      "assessed_amount": "196.71",
+      "assessment_source": "shop_estimate",
+      "confidence": "0.85"
+    },
+    "status": "open",
+    "created_at": "2026-04-24",
+    "decided_at": null
+  },
+  {
+    "claim_number": "CLM-00004",
+    "policy_number": "POL-00001",
+    "vehicle_vin": "1HGCM000000000001",
+    "incident": {
+      "incident_type": "collision",
+      "incident_date": "2025-03-21",
+      "description": "Sideswiped while merging on the highway.",
+      "location": "Phoenix, AZ",
+      "police_report_number": null,
+      "injuries_reported": false,
+      "other_parties_involved": false
+    },
+    "damage": {
+      "assessed_amount": "439.44",
+      "assessment_source": "shop_estimate",
+      "confidence": "0.85"
+    },
+    "status": "open",
+    "created_at": "2026-04-24",
+    "decided_at": null
+  },
+  {
+    "claim_number": "CLM-00005",
+    "policy_number": "POL-00039",
+    "vehicle_vin": "1HGCM000000000047",
+    "incident": {
+      "incident_type": "collision",
+      "incident_date": "2026-02-04",
+      "description": "Sideswiped while merging on the highway.",
+      "location": "Austin, TX",
+      "police_report_number": null,
+      "injuries_reported": false,
+      "other_parties_involved": false
+    },
+    "damage": {
+      "assessed_amount": "399.14",
+      "assessment_source": "shop_estimate",
+      "confidence": "0.85"
+    },
+    "status": "open",
+    "created_at": "2026-04-24",
+    "decided_at": null
+  },
+  {
+    "claim_number": "CLM-00006",
+    "policy_number": "POL-00012",
+    "vehicle_vin": "1HGCM000000000015",
+    "incident": {
+      "incident_type": "collision",
+      "incident_date": "2025-09-10",
+      "description": "Struck guard rail on curved road.",
+      "location": "Miami, FL",
+      "police_report_number": null,
+      "injuries_reported": false,
+      "other_parties_involved": false
+    },
+    "damage": {
+      "assessed_amount": "3120.35",
+      "assessment_source": "shop_estimate",
+      "confidence": "0.85"
+    },
+    "status": "open",
+    "created_at": "2026-04-24",
+    "decided_at": null
+  },
+  {
+    "claim_number": "CLM-00007",
+    "policy_number": "POL-00047",
+    "vehicle_vin": "1HGCM000000000057",
+    "incident": {
+      "incident_type": "collision",
+      "incident_date": "2026-01-02",
+      "description": "Front-end collision at intersection.",
+      "location": "Phoenix, AZ",
+      "police_report_number": null,
+      "injuries_reported": false,
+      "other_parties_involved": false
+    },
+    "damage": {
+      "assessed_amount": "3288.66",
+      "assessment_source": "shop_estimate",
+      "confidence": "0.85"
+    },
+    "status": "open",
+    "created_at": "2026-04-24",
+    "decided_at": null
+  },
+  {
+    "claim_number": "CLM-00008",
+    "policy_number": "POL-00038",
+    "vehicle_vin": "1HGCM000000000046",
+    "incident": {
+      "incident_type": "collision",
+      "incident_date": "2024-10-03",
+      "description": "Hit a parked car while reversing.",
+      "location": "Atlanta, GA",
+      "police_report_number": null,
+      "injuries_reported": false,
+      "other_parties_involved": false
+    },
+    "damage": {
+      "assessed_amount": "4085.96",
+      "assessment_source": "shop_estimate",
+      "confidence": "0.85"
+    },
+    "status": "open",
+    "created_at": "2026-04-24",
+    "decided_at": null
+  },
+  {
+    "claim_number": "CLM-00009",
+    "policy_number": "POL-00022",
+    "vehicle_vin": "1HGCM000000000026",
+    "incident": {
+      "incident_type": "collision",
+      "incident_date": "2026-04-03",
+      "description": "Rear-ended at red light.",
+      "location": "Denver, CO",
+      "police_report_number": null,
+      "injuries_reported": false,
+      "other_parties_involved": false
+    },
+    "damage": {
+      "assessed_amount": "2029.42",
+      "assessment_source": "shop_estimate",
+      "confidence": "0.85"
+    },
+    "status": "open",
+    "created_at": "2026-04-24",
+    "decided_at": null
+  },
+  {
+    "claim_number": "CLM-00010",
+    "policy_number": "POL-00026",
+    "vehicle_vin": "1HGCM000000000030",
+    "incident": {
+      "incident_type": "collision",
+      "incident_date": "2024-10-19",
+      "description": "Struck guard rail on curved road.",
+      "location": "Austin, TX",
+      "police_report_number": null,
+      "injuries_reported": false,
+      "other_parties_involved": false
+    },
+    "damage": {
+      "assessed_amount": "1525.47",
+      "assessment_source": "shop_estimate",
+      "confidence": "0.85"
+    },
+    "status": "open",
+    "created_at": "2026-04-24",
+    "decided_at": null
+  },
+  {
+    "claim_number": "CLM-00011",
+    "policy_number": "POL-00014",
+    "vehicle_vin": "1HGCM000000000017",
+    "incident": {
+      "incident_type": "collision",
+      "incident_date": "2025-04-16",
+      "description": "Sideswiped while merging on the highway.",
+      "location": "Seattle, WA",
+      "police_report_number": null,
+      "injuries_reported": false,
+      "other_parties_involved": false
+    },
+    "damage": {
+      "assessed_amount": "9346.97",
+      "assessment_source": "shop_estimate",
+      "confidence": "0.85"
+    },
+    "status": "open",
+    "created_at": "2026-04-24",
+    "decided_at": null
+  },
+  {
+    "claim_number": "CLM-00012",
+    "policy_number": "POL-00035",
+    "vehicle_vin": "1HGCM000000000042",
+    "incident": {
+      "incident_type": "collision",
+      "incident_date": "2025-07-15",
+      "description": "Struck guard rail on curved road.",
+      "location": "Atlanta, GA",
+      "police_report_number": null,
+      "injuries_reported": false,
+      "other_parties_involved": false
+    },
+    "damage": {
+      "assessed_amount": "16719.41",
+      "assessment_source": "shop_estimate",
+      "confidence": "0.85"
+    },
+    "status": "open",
+    "created_at": "2026-04-24",
+    "decided_at": null
+  },
+  {
+    "claim_number": "CLM-00013",
+    "policy_number": "POL-00004",
+    "vehicle_vin": "1HGCM000000000005",
+    "incident": {
+      "incident_type": "collision",
+      "incident_date": "2025-02-27",
+      "description": "Front-end collision at intersection.",
+      "location": "Chicago, IL",
+      "police_report_number": null,
+      "injuries_reported": false,
+      "other_parties_involved": false
+    },
+    "damage": {
+      "assessed_amount": "15977.16",
+      "assessment_source": "shop_estimate",
+      "confidence": "0.85"
+    },
+    "status": "open",
+    "created_at": "2026-04-24",
+    "decided_at": null
+  },
+  {
+    "claim_number": "CLM-00014",
+    "policy_number": "POL-00044",
+    "vehicle_vin": "1HGCM000000000053",
+    "incident": {
+      "incident_type": "collision",
+      "incident_date": "2025-10-15",
+      "description": "Hit a parked car while reversing.",
+      "location": "Portland, OR",
+      "police_report_number": null,
+      "injuries_reported": true,
+      "other_parties_involved": false
+    },
+    "damage": {
+      "assessed_amount": "3098.43",
+      "assessment_source": "shop_estimate",
+      "confidence": "0.85"
+    },
+    "status": "open",
+    "created_at": "2026-04-24",
+    "decided_at": null
+  },
+  {
+    "claim_number": "CLM-00015",
+    "policy_number": "POL-00049",
+    "vehicle_vin": "1HGCM000000000060",
+    "incident": {
+      "incident_type": "collision",
+      "incident_date": "2025-11-23",
+      "description": "Sideswiped while merging on the highway.",
+      "location": "Denver, CO",
+      "police_report_number": null,
+      "injuries_reported": true,
+      "other_parties_involved": false
+    },
+    "damage": {
+      "assessed_amount": "3142.51",
+      "assessment_source": "shop_estimate",
+      "confidence": "0.85"
+    },
+    "status": "open",
+    "created_at": "2026-04-24",
+    "decided_at": null
+  },
+  {
+    "claim_number": "CLM-00016",
+    "policy_number": "POL-00046",
+    "vehicle_vin": "1HGCM000000000056",
+    "incident": {
+      "incident_type": "collision",
+      "incident_date": "2024-12-24",
+      "description": "Hit a parked car while reversing.",
+      "location": "Portland, OR",
+      "police_report_number": null,
+      "injuries_reported": false,
+      "other_parties_involved": false
+    },
+    "damage": {
+      "assessed_amount": "35000",
+      "assessment_source": "shop_estimate",
+      "confidence": "0.85"
+    },
+    "status": "open",
+    "created_at": "2026-04-24",
+    "decided_at": null
+  },
+  {
+    "claim_number": "CLM-00017",
+    "policy_number": "POL-00015",
+    "vehicle_vin": "1HGCM000000000018",
+    "incident": {
+      "incident_type": "collision",
+      "incident_date": "2025-11-29",
+      "description": "Struck guard rail on curved road.",
+      "location": "Chicago, IL",
+      "police_report_number": null,
+      "injuries_reported": false,
+      "other_parties_involved": false
+    },
+    "damage": {
+      "assessed_amount": "60000",
+      "assessment_source": "shop_estimate",
+      "confidence": "0.85"
+    },
+    "status": "open",
+    "created_at": "2026-04-24",
+    "decided_at": null
+  },
+  {
+    "claim_number": "CLM-00018",
+    "policy_number": "POL-00001",
+    "vehicle_vin": "1HGCM000000000002",
+    "incident": {
+      "incident_type": "collision",
+      "incident_date": "2022-08-17",
+      "description": "Struck guard rail on curved road.",
+      "location": "Chicago, IL",
+      "police_report_number": null,
+      "injuries_reported": false,
+      "other_parties_involved": false
+    },
+    "damage": {
+      "assessed_amount": "1500",
+      "assessment_source": "shop_estimate",
+      "confidence": "0.85"
+    },
+    "status": "open",
+    "created_at": "2026-04-24",
+    "decided_at": null
+  },
+  {
+    "claim_number": "CLM-00019",
+    "policy_number": "POL-99999",
+    "vehicle_vin": "1HGCM000000000000",
+    "incident": {
+      "incident_type": "collision",
+      "incident_date": "2026-03-25",
+      "description": "Rear-ended at red light.",
+      "location": "Portland, OR",
+      "police_report_number": null,
+      "injuries_reported": false,
+      "other_parties_involved": false
+    },
+    "damage": {
+      "assessed_amount": "2000",
+      "assessment_source": "shop_estimate",
+      "confidence": "0.85"
+    },
+    "status": "open",
+    "created_at": "2026-04-24",
+    "decided_at": null
+  },
+  {
+    "claim_number": "CLM-00020",
+    "policy_number": "POL-00018",
+    "vehicle_vin": "1HGCM000000000021",
+    "incident": {
+      "incident_type": "theft",
+      "incident_date": "2025-04-23",
+      "description": "Vehicle stolen from parking lot overnight.",
+      "location": "Denver, CO",
+      "police_report_number": null,
+      "injuries_reported": false,
+      "other_parties_involved": false
+    },
+    "damage": null,
+    "status": "open",
+    "created_at": "2026-04-24",
+    "decided_at": null
+  }
+]

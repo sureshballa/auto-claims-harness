@@ -1,0 +1,1564 @@
+[
+  {
+    "policy_number": "POL-00001",
+    "policyholder_name": "Drew Herrera",
+    "policyholder_email": "drew.herrera@example.test",
+    "effective_date": "2024-08-16",
+    "expiration_date": "2025-08-16",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000001",
+        "year": 2013,
+        "make": "Ford",
+        "model": "F-150",
+        "value_estimate": "17362.13"
+      },
+      {
+        "vin": "1HGCM000000000002",
+        "year": 2021,
+        "make": "Honda",
+        "model": "Civic",
+        "value_estimate": "12298.95"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "500"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "250"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00002",
+    "policyholder_name": "Alex Chen",
+    "policyholder_email": "alex.chen@example.test",
+    "effective_date": "2024-07-28",
+    "expiration_date": "2025-07-28",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000003",
+        "year": 2019,
+        "make": "Chevrolet",
+        "model": "Silverado",
+        "value_estimate": "9112.99"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "1000"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "500"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00003",
+    "policyholder_name": "Sage Abramowitz",
+    "policyholder_email": "sage.abramowitz@example.test",
+    "effective_date": "2024-04-30",
+    "expiration_date": "2025-04-30",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000004",
+        "year": 2021,
+        "make": "Honda",
+        "model": "Civic",
+        "value_estimate": "25725.73"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "500"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "500"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00004",
+    "policyholder_name": "Jordan Patel",
+    "policyholder_email": "jordan.patel@example.test",
+    "effective_date": "2024-07-27",
+    "expiration_date": "2025-07-27",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000005",
+        "year": 2023,
+        "make": "Ford",
+        "model": "F-150",
+        "value_estimate": "22426.54"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "500"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00005",
+    "policyholder_name": "Skyler Mensah",
+    "policyholder_email": "skyler.mensah@example.test",
+    "effective_date": "2024-08-29",
+    "expiration_date": "2025-08-29",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000006",
+        "year": 2011,
+        "make": "Tesla",
+        "model": "Model 3",
+        "value_estimate": "31154.26"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "1000"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "250"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00006",
+    "policyholder_name": "Alex Chen",
+    "policyholder_email": "alex.chen@example.test",
+    "effective_date": "2024-12-13",
+    "expiration_date": "2025-12-13",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000007",
+        "year": 2023,
+        "make": "Toyota",
+        "model": "Camry",
+        "value_estimate": "17763.95"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "500"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00007",
+    "policyholder_name": "Drew Herrera",
+    "policyholder_email": "drew.herrera@example.test",
+    "effective_date": "2025-05-02",
+    "expiration_date": "2026-05-02",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000008",
+        "year": 2013,
+        "make": "Ford",
+        "model": "F-150",
+        "value_estimate": "36109.18"
+      },
+      {
+        "vin": "1HGCM000000000009",
+        "year": 2021,
+        "make": "Ford",
+        "model": "F-150",
+        "value_estimate": "36670.06"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "500"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "250"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00008",
+    "policyholder_name": "Morgan Diaz",
+    "policyholder_email": "morgan.diaz@example.test",
+    "effective_date": "2025-08-10",
+    "expiration_date": "2026-08-10",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000010",
+        "year": 2013,
+        "make": "Chevrolet",
+        "model": "Silverado",
+        "value_estimate": "36714.8"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "500"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "250"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00009",
+    "policyholder_name": "Sage Abramowitz",
+    "policyholder_email": "sage.abramowitz@example.test",
+    "effective_date": "2025-03-13",
+    "expiration_date": "2026-03-13",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000011",
+        "year": 2013,
+        "make": "Toyota",
+        "model": "Camry",
+        "value_estimate": "31789.25"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "500"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00010",
+    "policyholder_name": "Avery Nguyen",
+    "policyholder_email": "avery.nguyen@example.test",
+    "effective_date": "2025-08-06",
+    "expiration_date": "2026-08-06",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000012",
+        "year": 2013,
+        "make": "Honda",
+        "model": "Civic",
+        "value_estimate": "39247.1"
+      },
+      {
+        "vin": "1HGCM000000000013",
+        "year": 2018,
+        "make": "Chevrolet",
+        "model": "Silverado",
+        "value_estimate": "19020.18"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "500"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00011",
+    "policyholder_name": "Riley Thompson",
+    "policyholder_email": "riley.thompson@example.test",
+    "effective_date": "2024-12-04",
+    "expiration_date": "2025-12-04",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000014",
+        "year": 2018,
+        "make": "Honda",
+        "model": "Civic",
+        "value_estimate": "28699.55"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "500"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00012",
+    "policyholder_name": "Morgan Diaz",
+    "policyholder_email": "morgan.diaz@example.test",
+    "effective_date": "2024-10-04",
+    "expiration_date": "2025-10-04",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000015",
+        "year": 2019,
+        "make": "Tesla",
+        "model": "Model 3",
+        "value_estimate": "10664.54"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "1000"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "250"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00013",
+    "policyholder_name": "Drew Herrera",
+    "policyholder_email": "drew.herrera@example.test",
+    "effective_date": "2024-08-19",
+    "expiration_date": "2025-08-19",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000016",
+        "year": 2022,
+        "make": "Chevrolet",
+        "model": "Silverado",
+        "value_estimate": "19191.45"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "500"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00014",
+    "policyholder_name": "Avery Nguyen",
+    "policyholder_email": "avery.nguyen@example.test",
+    "effective_date": "2024-10-02",
+    "expiration_date": "2025-10-02",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000017",
+        "year": 2018,
+        "make": "Ford",
+        "model": "F-150",
+        "value_estimate": "39959.01"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "500"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00015",
+    "policyholder_name": "Casey Rivera",
+    "policyholder_email": "casey.rivera@example.test",
+    "effective_date": "2025-09-25",
+    "expiration_date": "2026-09-25",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000018",
+        "year": 2015,
+        "make": "Honda",
+        "model": "Civic",
+        "value_estimate": "39982.02"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "500"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "500"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00016",
+    "policyholder_name": "Alex Chen",
+    "policyholder_email": "alex.chen@example.test",
+    "effective_date": "2024-08-16",
+    "expiration_date": "2025-08-16",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000019",
+        "year": 2013,
+        "make": "Ford",
+        "model": "F-150",
+        "value_estimate": "10429.55"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "500"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "500"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00017",
+    "policyholder_name": "Parker Nwosu",
+    "policyholder_email": "parker.nwosu@example.test",
+    "effective_date": "2024-07-03",
+    "expiration_date": "2025-07-03",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000020",
+        "year": 2022,
+        "make": "Chevrolet",
+        "model": "Silverado",
+        "value_estimate": "13274.77"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "1000"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00018",
+    "policyholder_name": "Morgan Diaz",
+    "policyholder_email": "morgan.diaz@example.test",
+    "effective_date": "2025-01-20",
+    "expiration_date": "2026-01-20",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000021",
+        "year": 2016,
+        "make": "Chevrolet",
+        "model": "Silverado",
+        "value_estimate": "16883.46"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00019",
+    "policyholder_name": "Reese Yamamoto",
+    "policyholder_email": "reese.yamamoto@example.test",
+    "effective_date": "2024-11-15",
+    "expiration_date": "2025-11-15",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000022",
+        "year": 2020,
+        "make": "Tesla",
+        "model": "Model 3",
+        "value_estimate": "35257.86"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "1000"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "250"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00020",
+    "policyholder_name": "Jordan Patel",
+    "policyholder_email": "jordan.patel@example.test",
+    "effective_date": "2025-04-05",
+    "expiration_date": "2026-04-05",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000023",
+        "year": 2013,
+        "make": "Chevrolet",
+        "model": "Silverado",
+        "value_estimate": "32680.96"
+      },
+      {
+        "vin": "1HGCM000000000024",
+        "year": 2010,
+        "make": "Honda",
+        "model": "Civic",
+        "value_estimate": "10977.66"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "250"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00021",
+    "policyholder_name": "Finley Johansson",
+    "policyholder_email": "finley.johansson@example.test",
+    "effective_date": "2024-05-26",
+    "expiration_date": "2025-05-26",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000025",
+        "year": 2018,
+        "make": "Toyota",
+        "model": "Camry",
+        "value_estimate": "17982.63"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "1000"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "250"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00022",
+    "policyholder_name": "Reese Yamamoto",
+    "policyholder_email": "reese.yamamoto@example.test",
+    "effective_date": "2025-08-21",
+    "expiration_date": "2026-08-21",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000026",
+        "year": 2022,
+        "make": "Tesla",
+        "model": "Model 3",
+        "value_estimate": "25073.33"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "500"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00023",
+    "policyholder_name": "Riley Thompson",
+    "policyholder_email": "riley.thompson@example.test",
+    "effective_date": "2025-07-01",
+    "expiration_date": "2026-07-01",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000027",
+        "year": 2020,
+        "make": "Toyota",
+        "model": "Camry",
+        "value_estimate": "35407.9"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "500"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00024",
+    "policyholder_name": "Reese Yamamoto",
+    "policyholder_email": "reese.yamamoto@example.test",
+    "effective_date": "2025-04-06",
+    "expiration_date": "2026-04-06",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000028",
+        "year": 2013,
+        "make": "Toyota",
+        "model": "Camry",
+        "value_estimate": "16035.87"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "1000"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "250"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00025",
+    "policyholder_name": "Casey Rivera",
+    "policyholder_email": "casey.rivera@example.test",
+    "effective_date": "2025-08-10",
+    "expiration_date": "2026-08-10",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000029",
+        "year": 2017,
+        "make": "Toyota",
+        "model": "Camry",
+        "value_estimate": "41890.9"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "250"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00026",
+    "policyholder_name": "Drew Herrera",
+    "policyholder_email": "drew.herrera@example.test",
+    "effective_date": "2024-05-09",
+    "expiration_date": "2025-05-09",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000030",
+        "year": 2012,
+        "make": "Honda",
+        "model": "Civic",
+        "value_estimate": "25046.24"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "500"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00027",
+    "policyholder_name": "Finley Johansson",
+    "policyholder_email": "finley.johansson@example.test",
+    "effective_date": "2024-06-23",
+    "expiration_date": "2025-06-23",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000031",
+        "year": 2016,
+        "make": "Toyota",
+        "model": "Camry",
+        "value_estimate": "19123.42"
+      },
+      {
+        "vin": "1HGCM000000000032",
+        "year": 2014,
+        "make": "Tesla",
+        "model": "Model 3",
+        "value_estimate": "25742.21"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "1000"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "500"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00028",
+    "policyholder_name": "Taylor Kim",
+    "policyholder_email": "taylor.kim@example.test",
+    "effective_date": "2024-06-22",
+    "expiration_date": "2025-06-22",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000033",
+        "year": 2010,
+        "make": "Chevrolet",
+        "model": "Silverado",
+        "value_estimate": "39372.36"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "500"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "250"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00029",
+    "policyholder_name": "Alex Chen",
+    "policyholder_email": "alex.chen@example.test",
+    "effective_date": "2025-09-26",
+    "expiration_date": "2026-09-26",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000034",
+        "year": 2011,
+        "make": "Honda",
+        "model": "Civic",
+        "value_estimate": "32957.58"
+      },
+      {
+        "vin": "1HGCM000000000035",
+        "year": 2020,
+        "make": "Toyota",
+        "model": "Camry",
+        "value_estimate": "44147.31"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "500"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00030",
+    "policyholder_name": "Jamie Kowalski",
+    "policyholder_email": "jamie.kowalski@example.test",
+    "effective_date": "2025-01-01",
+    "expiration_date": "2026-01-01",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000036",
+        "year": 2019,
+        "make": "Toyota",
+        "model": "Camry",
+        "value_estimate": "11438.63"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "1000"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00031",
+    "policyholder_name": "Taylor Kim",
+    "policyholder_email": "taylor.kim@example.test",
+    "effective_date": "2025-03-11",
+    "expiration_date": "2026-03-11",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000037",
+        "year": 2012,
+        "make": "Tesla",
+        "model": "Model 3",
+        "value_estimate": "36172.72"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "1000"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "250"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00032",
+    "policyholder_name": "Alex Chen",
+    "policyholder_email": "alex.chen@example.test",
+    "effective_date": "2025-08-06",
+    "expiration_date": "2026-08-06",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000038",
+        "year": 2011,
+        "make": "Chevrolet",
+        "model": "Silverado",
+        "value_estimate": "11072.77"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "1000"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "500"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00033",
+    "policyholder_name": "Finley Johansson",
+    "policyholder_email": "finley.johansson@example.test",
+    "effective_date": "2024-07-03",
+    "expiration_date": "2025-07-03",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000039",
+        "year": 2014,
+        "make": "Ford",
+        "model": "F-150",
+        "value_estimate": "14616.38"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "1000"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00034",
+    "policyholder_name": "Sage Abramowitz",
+    "policyholder_email": "sage.abramowitz@example.test",
+    "effective_date": "2025-10-17",
+    "expiration_date": "2026-10-17",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000040",
+        "year": 2014,
+        "make": "Chevrolet",
+        "model": "Silverado",
+        "value_estimate": "35824.53"
+      },
+      {
+        "vin": "1HGCM000000000041",
+        "year": 2024,
+        "make": "Toyota",
+        "model": "Camry",
+        "value_estimate": "13632.57"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "500"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00035",
+    "policyholder_name": "Morgan Diaz",
+    "policyholder_email": "morgan.diaz@example.test",
+    "effective_date": "2025-01-27",
+    "expiration_date": "2026-01-27",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000042",
+        "year": 2021,
+        "make": "Honda",
+        "model": "Civic",
+        "value_estimate": "22381.44"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "1000"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "500"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00036",
+    "policyholder_name": "Finley Johansson",
+    "policyholder_email": "finley.johansson@example.test",
+    "effective_date": "2024-06-15",
+    "expiration_date": "2025-06-15",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000043",
+        "year": 2023,
+        "make": "Tesla",
+        "model": "Model 3",
+        "value_estimate": "19604.8"
+      },
+      {
+        "vin": "1HGCM000000000044",
+        "year": 2010,
+        "make": "Toyota",
+        "model": "Camry",
+        "value_estimate": "21990.37"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00037",
+    "policyholder_name": "Casey Rivera",
+    "policyholder_email": "casey.rivera@example.test",
+    "effective_date": "2024-10-06",
+    "expiration_date": "2025-10-06",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000045",
+        "year": 2021,
+        "make": "Chevrolet",
+        "model": "Silverado",
+        "value_estimate": "25938.48"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "500"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "250"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00038",
+    "policyholder_name": "Skyler Mensah",
+    "policyholder_email": "skyler.mensah@example.test",
+    "effective_date": "2024-05-30",
+    "expiration_date": "2025-05-30",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000046",
+        "year": 2018,
+        "make": "Chevrolet",
+        "model": "Silverado",
+        "value_estimate": "14211.5"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "500"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "250"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00039",
+    "policyholder_name": "Finley Johansson",
+    "policyholder_email": "finley.johansson@example.test",
+    "effective_date": "2025-04-25",
+    "expiration_date": "2026-04-25",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000047",
+        "year": 2020,
+        "make": "Honda",
+        "model": "Civic",
+        "value_estimate": "12311.47"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "1000"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00040",
+    "policyholder_name": "Reese Yamamoto",
+    "policyholder_email": "reese.yamamoto@example.test",
+    "effective_date": "2024-09-29",
+    "expiration_date": "2025-09-29",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000048",
+        "year": 2023,
+        "make": "Honda",
+        "model": "Civic",
+        "value_estimate": "14815.81"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00041",
+    "policyholder_name": "Finley Johansson",
+    "policyholder_email": "finley.johansson@example.test",
+    "effective_date": "2025-06-20",
+    "expiration_date": "2026-06-20",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000049",
+        "year": 2022,
+        "make": "Ford",
+        "model": "F-150",
+        "value_estimate": "25268.5"
+      },
+      {
+        "vin": "1HGCM000000000050",
+        "year": 2014,
+        "make": "Honda",
+        "model": "Civic",
+        "value_estimate": "14677.24"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "250"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00042",
+    "policyholder_name": "Parker Nwosu",
+    "policyholder_email": "parker.nwosu@example.test",
+    "effective_date": "2025-08-18",
+    "expiration_date": "2026-08-18",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000051",
+        "year": 2015,
+        "make": "Tesla",
+        "model": "Model 3",
+        "value_estimate": "20800.63"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00043",
+    "policyholder_name": "Taylor Kim",
+    "policyholder_email": "taylor.kim@example.test",
+    "effective_date": "2024-05-18",
+    "expiration_date": "2025-05-18",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000052",
+        "year": 2015,
+        "make": "Tesla",
+        "model": "Model 3",
+        "value_estimate": "19685.45"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00044",
+    "policyholder_name": "Casey Rivera",
+    "policyholder_email": "casey.rivera@example.test",
+    "effective_date": "2025-04-18",
+    "expiration_date": "2026-04-18",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000053",
+        "year": 2020,
+        "make": "Tesla",
+        "model": "Model 3",
+        "value_estimate": "43385.71"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "500"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "500"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00045",
+    "policyholder_name": "Morgan Diaz",
+    "policyholder_email": "morgan.diaz@example.test",
+    "effective_date": "2025-01-20",
+    "expiration_date": "2026-01-20",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000054",
+        "year": 2016,
+        "make": "Chevrolet",
+        "model": "Silverado",
+        "value_estimate": "22499.16"
+      },
+      {
+        "vin": "1HGCM000000000055",
+        "year": 2016,
+        "make": "Ford",
+        "model": "F-150",
+        "value_estimate": "33426.24"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "250"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00046",
+    "policyholder_name": "Casey Rivera",
+    "policyholder_email": "casey.rivera@example.test",
+    "effective_date": "2024-06-08",
+    "expiration_date": "2025-06-08",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000056",
+        "year": 2018,
+        "make": "Toyota",
+        "model": "Camry",
+        "value_estimate": "41827.51"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "500"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "250"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00047",
+    "policyholder_name": "Drew Herrera",
+    "policyholder_email": "drew.herrera@example.test",
+    "effective_date": "2025-03-28",
+    "expiration_date": "2026-03-28",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000057",
+        "year": 2021,
+        "make": "Toyota",
+        "model": "Camry",
+        "value_estimate": "20596.42"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "1000"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "500"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00048",
+    "policyholder_name": "Skyler Mensah",
+    "policyholder_email": "skyler.mensah@example.test",
+    "effective_date": "2024-09-01",
+    "expiration_date": "2025-09-01",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000058",
+        "year": 2020,
+        "make": "Tesla",
+        "model": "Model 3",
+        "value_estimate": "39379.03"
+      },
+      {
+        "vin": "1HGCM000000000059",
+        "year": 2019,
+        "make": "Honda",
+        "model": "Civic",
+        "value_estimate": "31870"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "500"
+      },
+      {
+        "coverage_type": "comprehensive",
+        "limit": "20000",
+        "deductible": "250"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00049",
+    "policyholder_name": "Avery Nguyen",
+    "policyholder_email": "avery.nguyen@example.test",
+    "effective_date": "2025-03-19",
+    "expiration_date": "2026-03-19",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000060",
+        "year": 2020,
+        "make": "Tesla",
+        "model": "Model 3",
+        "value_estimate": "16963.28"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      },
+      {
+        "coverage_type": "collision",
+        "limit": "25000",
+        "deductible": "500"
+      }
+    ]
+  },
+  {
+    "policy_number": "POL-00050",
+    "policyholder_name": "Casey Rivera",
+    "policyholder_email": "casey.rivera@example.test",
+    "effective_date": "2025-10-03",
+    "expiration_date": "2026-10-03",
+    "vehicles": [
+      {
+        "vin": "1HGCM000000000061",
+        "year": 2015,
+        "make": "Chevrolet",
+        "model": "Silverado",
+        "value_estimate": "11916.94"
+      }
+    ],
+    "coverages": [
+      {
+        "coverage_type": "liability",
+        "limit": "50000",
+        "deductible": "0"
+      }
+    ]
+  }
+]
