@@ -55,7 +55,7 @@ def test_default_provider_is_lmstudio(monkeypatch: pytest.MonkeyPatch) -> None:
     from agent_framework.openai import OpenAIChatClient
 
     try:
-        client = build_chat_client()
+        client = build_chat_client(load_env=False)
     except Exception as exc:
         raise AssertionError(
             f"build_chat_client() raised unexpectedly for lmstudio default: {exc!r}"
@@ -74,7 +74,7 @@ def test_explicit_lmstudio(monkeypatch: pytest.MonkeyPatch) -> None:
     from agent_framework.openai import OpenAIChatClient
 
     try:
-        client = build_chat_client()
+        client = build_chat_client(load_env=False)
     except Exception as exc:
         raise AssertionError(
             f"build_chat_client() raised unexpectedly for explicit lmstudio: {exc!r}"
@@ -93,7 +93,7 @@ def test_anthropic_branch(monkeypatch: pytest.MonkeyPatch) -> None:
     from agent_framework.anthropic import AnthropicClient
 
     try:
-        client = build_chat_client()
+        client = build_chat_client(load_env=False)
     except Exception as exc:
         raise AssertionError(
             f"build_chat_client() raised unexpectedly for anthropic: {exc!r}"
@@ -112,7 +112,7 @@ def test_openai_branch(monkeypatch: pytest.MonkeyPatch) -> None:
     from agent_framework.openai import OpenAIChatClient
 
     try:
-        client = build_chat_client()
+        client = build_chat_client(load_env=False)
     except Exception as exc:
         raise AssertionError(
             f"build_chat_client() raised unexpectedly for openai: {exc!r}"
@@ -132,7 +132,7 @@ def test_unrecognized_provider_raises(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("LLM_PROVIDER", "grok")
 
     with pytest.raises(ProviderConfigError) as exc_info:
-        build_chat_client()
+        build_chat_client(load_env=False)
 
     msg = str(exc_info.value)
     assert "grok" in msg, f"Expected 'grok' in error message, got: {msg!r}"
@@ -153,7 +153,7 @@ def test_lmstudio_missing_base_url(monkeypatch: pytest.MonkeyPatch) -> None:
     # LMSTUDIO_BASE_URL intentionally absent
 
     with pytest.raises(ProviderConfigError) as exc_info:
-        build_chat_client()
+        build_chat_client(load_env=False)
 
     assert "LMSTUDIO_BASE_URL" in str(exc_info.value)
 
@@ -165,7 +165,7 @@ def test_lmstudio_missing_model(monkeypatch: pytest.MonkeyPatch) -> None:
     # LMSTUDIO_MODEL intentionally absent
 
     with pytest.raises(ProviderConfigError) as exc_info:
-        build_chat_client()
+        build_chat_client(load_env=False)
 
     assert "LMSTUDIO_MODEL" in str(exc_info.value)
 
@@ -182,7 +182,7 @@ def test_anthropic_missing_api_key(monkeypatch: pytest.MonkeyPatch) -> None:
     # ANTHROPIC_API_KEY intentionally absent
 
     with pytest.raises(ProviderConfigError) as exc_info:
-        build_chat_client()
+        build_chat_client(load_env=False)
 
     assert "ANTHROPIC_API_KEY" in str(exc_info.value)
 
@@ -194,7 +194,7 @@ def test_anthropic_missing_model(monkeypatch: pytest.MonkeyPatch) -> None:
     # ANTHROPIC_MODEL intentionally absent
 
     with pytest.raises(ProviderConfigError) as exc_info:
-        build_chat_client()
+        build_chat_client(load_env=False)
 
     assert "ANTHROPIC_MODEL" in str(exc_info.value)
 
@@ -211,7 +211,7 @@ def test_openai_missing_api_key(monkeypatch: pytest.MonkeyPatch) -> None:
     # OPENAI_API_KEY intentionally absent
 
     with pytest.raises(ProviderConfigError) as exc_info:
-        build_chat_client()
+        build_chat_client(load_env=False)
 
     assert "OPENAI_API_KEY" in str(exc_info.value)
 
@@ -223,7 +223,7 @@ def test_openai_missing_model(monkeypatch: pytest.MonkeyPatch) -> None:
     # OPENAI_MODEL intentionally absent
 
     with pytest.raises(ProviderConfigError) as exc_info:
-        build_chat_client()
+        build_chat_client(load_env=False)
 
     assert "OPENAI_MODEL" in str(exc_info.value)
 
@@ -241,7 +241,7 @@ def test_empty_string_treated_as_missing(monkeypatch: pytest.MonkeyPatch) -> Non
     monkeypatch.setenv("LMSTUDIO_MODEL", "openai/gpt-oss-20b")
 
     with pytest.raises(ProviderConfigError) as exc_info:
-        build_chat_client()
+        build_chat_client(load_env=False)
 
     assert "LMSTUDIO_BASE_URL" in str(exc_info.value)
 
@@ -256,7 +256,7 @@ def test_provider_value_with_whitespace_is_stripped(monkeypatch: pytest.MonkeyPa
     from agent_framework.openai import OpenAIChatClient
 
     try:
-        client = build_chat_client()
+        client = build_chat_client(load_env=False)
     except ProviderConfigError as exc:
         raise AssertionError(
             f"build_chat_client() raised ProviderConfigError for whitespace-padded "

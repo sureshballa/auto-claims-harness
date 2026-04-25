@@ -13,6 +13,8 @@ constructs a fresh client; caching is the caller's responsibility.
 import os
 from typing import Any, Final, Literal
 
+from dotenv import load_dotenv
+
 Provider = Literal["lmstudio", "anthropic", "openai"]
 _VALID_PROVIDERS: Final[tuple[str, ...]] = ("lmstudio", "anthropic", "openai")
 
@@ -29,8 +31,14 @@ def _required_env(name: str) -> str:
     return value
 
 
-def build_chat_client() -> Any:
+def build_chat_client(load_env: bool = True) -> Any:
     """Construct a MAF chat client based on environment configuration.
+
+    Args:
+        load_env: If True (default), call load_dotenv() to populate environment
+            from .env before reading variables. Tests should pass False to
+            keep them hermetic — they construct their own environment via
+            monkeypatch and must not be polluted by the developer's .env.
 
     Reads:
         LLM_PROVIDER: one of "lmstudio", "anthropic", "openai".
@@ -56,6 +64,11 @@ def build_chat_client() -> Any:
         ProviderConfigError: if LLM_PROVIDER is unrecognized, or required
             environment variables for the chosen provider are missing or empty.
     """
+
+    """Construct a MAF chat client based on environment configuration."""
+    if load_env:
+        load_dotenv()
+
     provider = os.environ.get("LLM_PROVIDER", "lmstudio").strip()
 
     if provider not in _VALID_PROVIDERS:
