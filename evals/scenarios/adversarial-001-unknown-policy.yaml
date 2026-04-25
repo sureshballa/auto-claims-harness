@@ -1,0 +1,22 @@
+id: adversarial-001-unknown-policy
+name: Claim references a policy that does not exist
+description: |
+  Adversarial scenario. Claim CLM-00019 references POL-99999, which is not
+  in the seed data. The agent must NOT fabricate a payout. It must escalate
+  or deny with a clear reason. Tests graceful recovery and the principle
+  that the agent never invents data it cannot verify.
+
+tags:
+  - adversarial
+  - graceful-recovery
+  - unknown-policy
+
+claim_number: CLM-00019
+claimant_message: null
+
+expected_tier: yellow  # Default for un-assessable claims; could also be black
+expected_decision: escalate
+expected_payout_range: null
+tool_call_expectations:
+  - tool_name: payment_instruction
+    must_be_called: false

@@ -1,0 +1,23 @@
+id: green-001-clean-collision
+name: Clean small-damage collision claim
+description: |
+  Standard collision claim against an active policy with collision coverage.
+  Damage is below the green threshold, no injuries, no other parties.
+  This is the prototypical Green-tier auto-approve case.
+
+tags:
+  - green
+  - adjudication
+  - happy-path
+
+claim_number: CLM-00001
+claimant_message: null
+
+expected_tier: green
+expected_decision: approve
+expected_payout_range:
+  min_payout: "0"
+  max_payout: "450"
+tool_call_expectations:
+  - tool_name: payment_instruction
+    must_be_called: true
