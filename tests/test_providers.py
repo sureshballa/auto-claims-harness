@@ -259,7 +259,8 @@ def test_provider_value_with_whitespace_is_stripped(monkeypatch: pytest.MonkeyPa
         client = build_chat_client()
     except ProviderConfigError as exc:
         raise AssertionError(
-            f"build_chat_client() raised ProviderConfigError for whitespace-padded provider: {exc!r}"
+            f"build_chat_client() raised ProviderConfigError for whitespace-padded "
+            f"provider: {exc!r}"
         ) from exc
 
     assert isinstance(client, OpenAIChatClient)

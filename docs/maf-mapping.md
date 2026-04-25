@@ -154,3 +154,8 @@ Eval-side contracts (also stable):
 - **Stage 0, Lesson 0.11**: Expanded with provider-factory rationale, eval surface
   notes, MAF 1.1.x API drift discoveries (`as_agent`, `service_url` quirk),
   known MAF issues, and per-stage open questions refined.
+
+
+## Verification Stack
+
+  The project's verification stack combines deterministic fitness functions (mypy strict mode, ruff rule sets), AI-assisted architectural review (/harness-check), unit-level correctness (pytest), and behavioral fitness measurement (eval suite). Rules expressible as deterministic checks should be promoted from the AI-assisted layer to the mechanical layer over time.

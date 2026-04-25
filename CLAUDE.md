@@ -33,6 +33,8 @@ Mature agent systems are ~98% deterministic harness and ~2% LLM decision logic. 
 - **Never add `# type: ignore` comments preemptively.** Write code first, run `uv run mypy` to find actual type errors, only suppress with `# type: ignore[specific-error-code]` if mypy genuinely complains AND the type error is unfixable in our code. The same applies to `# noqa` for ruff and `# pragma: no cover` for coverage. Strict mode rejects unused suppressions. Earn every suppression.
 - **Never silently swallow exceptions** with `except Exception: pass` or `except: pass`. Either handle the exception with a logged action, or let it propagate. The bare `pass` after `except` is a bug.
 - **Never use `Any` as a function parameter or return type** unless interfacing with a third-party library whose own types are `Any`. If `Any` appears, justify it inline with a comment naming the library and the reason. Our types are precise; their types may not be.
+- **Never merge a Python module with a data directory of the same name.** If you want a directory of data files alongside related Python code, the directory and the module file MUST have different names. A directory containing a `__init__.py` is a Python package; mixing data files with package code is a structural smell.
+- **Never construct typed Pydantic models by unpacking untyped dicts** (`Model(**some_dict)`). Mypy cannot verify field types through dict unpacking and will produce confusing `arg-type` errors. Use explicit named keyword arguments: `Model(field=value, ...)`. The exception: `Model.model_validate(dict)` is fine — Pydantic does runtime validation and the static type is preserved.
 
 ## Design principle references
 
@@ -73,4 +75,12 @@ This project is organized around 13 harness-engineering principles. See `docs/pr
 
 ## Current stage
 
-We are at **Stage 0: Scaffold & Foundations**. The insurance agent does not yet exist. MAF code has not yet been written. We are building the deterministic foundation that Stages 1 through 5 will sit on. Do not reference Stage 1+ capabilities as if they exist.
+**Stage 0 is complete and signed off** (see `docs/stage-0-signoff.md`).
+
+We are now entering **Stage 1: Bare agent**. The first MAF-backed agent is being built
+in `agents/`, satisfying the `EvalAgent` protocol so it can be driven by the eval runner.
+The first goal is to beat the null-baseline accuracy on the green-001 scenario.
+
+Stages 2 through 5 still do not exist. Continue to refuse work that depends on
+capabilities planned for those stages — middleware (Stage 2), context providers
+(Stage 3), event-log implementations (Stage 4), multi-agent workflows (Stage 5).
