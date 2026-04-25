@@ -30,6 +30,9 @@ Mature agent systems are ~98% deterministic harness and ~2% LLM decision logic. 
 - **Never bypass `harness/contracts/` Protocols.** Every harness component satisfies a defined interface.
 - **Append-only for `harness/event_log/`.** Never edit or delete events. Corrections are new events referencing old ones.
 - **Never commit secrets.** `.env`, `.env.local`, API keys, credentials — never. `.env.example` (template with empty values) is the only env file that goes in git.
+- **Never add `# type: ignore` comments preemptively.** Write code first, run `uv run mypy` to find actual type errors, only suppress with `# type: ignore[specific-error-code]` if mypy genuinely complains AND the type error is unfixable in our code. The same applies to `# noqa` for ruff and `# pragma: no cover` for coverage. Strict mode rejects unused suppressions. Earn every suppression.
+- **Never silently swallow exceptions** with `except Exception: pass` or `except: pass`. Either handle the exception with a logged action, or let it propagate. The bare `pass` after `except` is a bug.
+- **Never use `Any` as a function parameter or return type** unless interfacing with a third-party library whose own types are `Any`. If `Any` appears, justify it inline with a comment naming the library and the reason. Our types are precise; their types may not be.
 
 ## Design principle references
 
@@ -43,6 +46,7 @@ This project is organized around 13 harness-engineering principles. See `docs/pr
 - Format and lint with `uv run ruff format` and `uv run ruff check`.
 - Type-check with `uv run mypy`.
 - Prefer small, reviewable changes over sweeping rewrites.
+- After writing or editing any Python file, run `uv run mypy <path>` and `uv run ruff check <path>` before claiming the work is done. If suppressions are needed, add them only with the specific error code (e.g., `# type: ignore[arg-type]`, `# noqa: E501`) — never bare `# type: ignore` or bare `# noqa`.
 
 ## Ask me before doing
 
