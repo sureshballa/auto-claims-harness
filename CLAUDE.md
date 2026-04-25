@@ -35,6 +35,11 @@ Mature agent systems are ~98% deterministic harness and ~2% LLM decision logic. 
 - **Never use `Any` as a function parameter or return type** unless interfacing with a third-party library whose own types are `Any`. If `Any` appears, justify it inline with a comment naming the library and the reason. Our types are precise; their types may not be.
 - **Never merge a Python module with a data directory of the same name.** If you want a directory of data files alongside related Python code, the directory and the module file MUST have different names. A directory containing a `__init__.py` is a Python package; mixing data files with package code is a structural smell.
 - **Never construct typed Pydantic models by unpacking untyped dicts** (`Model(**some_dict)`). Mypy cannot verify field types through dict unpacking and will produce confusing `arg-type` errors. Use explicit named keyword arguments: `Model(field=value, ...)`. The exception: `Model.model_validate(dict)` is fine — Pydantic does runtime validation and the static type is preserved.
+- **Functions that read from filesystem, network, environment, or system 
+  time MUST make this visible at the call site** — either via an explicit 
+  parameter (e.g., `path: Path`), or via a clearly-named opt-out parameter 
+  (e.g., `load_env: bool = True`). Hidden side effects break test isolation 
+  and surprise callers who must construct their own environment.
 
 ## Design principle references
 
@@ -80,6 +85,22 @@ This project is organized around 13 harness-engineering principles. See `docs/pr
 We are now entering **Stage 1: Bare agent**. The first MAF-backed agent is being built
 in `agents/`, satisfying the `EvalAgent` protocol so it can be driven by the eval runner.
 The first goal is to beat the null-baseline accuracy on the green-001 scenario.
+
+**Stage 1 constraints (deliberate naivety):**
+
+- No middleware (no agent_middleware, function_middleware, or chat_middleware).
+- No tools (the agent reasons from the claim text alone — no policy_lookup, no
+  vehicle_valuation, no payment_instruction).
+- No policy engine. No event log. No principal injection. No context providers
+  beyond what MAF provides by default.
+- No retries. No structured-output validation beyond what `response_format`
+  gives us. No graceful fallbacks if the model returns garbage.
+- The agent's instructions are a single short prompt — not engineered or layered.
+
+The goal of Stage 1 is to build a deliberately bad agent so Stage 2's harness
+has visible failure modes to address. Resist the urge to make the agent good.
+Make it work. Let it fail in interesting ways. We'll fix the failures with
+harness components in subsequent stages.
 
 Stages 2 through 5 still do not exist. Continue to refuse work that depends on
 capabilities planned for those stages — middleware (Stage 2), context providers
