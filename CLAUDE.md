@@ -81,21 +81,41 @@ This project is organized around 13 harness-engineering principles. See `docs/pr
 ## Current stage
 
 **Stage 0 is complete and signed off** (see `docs/stage-0-signoff.md`).
-**Stage 1 is complete and signed off** (see `docs/stage-1-signoff.md` and `docs/stage-1-notes.md`).
 
-We are now entering **Stage 2: Minimal harness**. The first middleware components are
-being built in `harness/middleware/` — response normalization, policy enforcement,
-audit logging — to address the failure modes documented in `docs/stage-1-notes.md`.
+**Stage 1 is complete** (see `docs/stage-1-notes.md`). The naive FnolAgent
+exists, integrates with MAF and GPT-OSS 20B, and produced clean failure-mode
+data: schema field divergence, substantive over-reach (deny on Yellow-tier),
+and prompt-grounding fragility.
 
-The first goal is to migrate the Stage 1 patches in `agents/fnol_agent.py` into
-proper MAF function middleware, eliminating the schema-validation errors and
-allowing the FnolAgent to finally produce non-erroring `AgentRunResult` values.
+We are now entering **Stage 2: Minimal harness**. The first middleware
+components are being built in `harness/middleware/` to address the failures
+Stage 1 surfaced.
 
-**Stage 2 design drivers (from Stage 1 observations):**
+**Stage 2 priorities (in order):**
 
-- Mechanical normalization of LLM output (field aliases, missing field defaults, fence stripping)
-- Policy enforcement at high-risk tiers (model cannot unilaterally deny Yellow/Red claims)
-- Externalized policy (aliases, authority rules, etc. live in `config/`, not code)
+1. **Response-normalization middleware** — fixes schema field divergence
+   from open-weight models. Migrates the Stage 1 fence-stripping patch
+   from `agents/fnol_agent.py` into proper function middleware. Adds
+   field aliasing and missing-field defaults.
+2. **Authority-enforcement middleware** — overrides agent decisions when
+   they exceed the principal's authority for the claim's tier. The
+   highest-severity Stage 1 finding (the yellow-001 deny) is solved here.
+3. **Externalized policy configuration** — aliases, authority mappings,
+   tier-decision rules in `config/permissions.yaml` (not code).
+4. **Concrete `PolicyEngine` implementation** — wires the above together
+   behind the contract defined in Stage 0.
 
-Stages 3 through 5 still do not exist. Continue to refuse work that depends on
-capabilities planned for those stages.
+**Stage 2 anti-priorities (do NOT build yet):**
+
+- Tools beyond what's in `domain/` already (Stage 3 work)
+- Context providers for claim files (Stage 3 work)
+- Event-log persistence (Stage 4 work)
+- Workflow / multi-agent orchestration (Stage 5 work)
+
+The Stage 1 fence-stripping patch in `agents/fnol_agent.py` (marked
+`# STAGE 1 PATCH`) MUST be migrated out of the agent into middleware
+during Stage 2 Lesson 2.1. The agent file should not contain
+response-cleaning logic by Stage 2 close.
+
+Stages 3 through 5 still do not exist. Continue to refuse work that
+depends on capabilities planned for those stages.

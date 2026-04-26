@@ -16,6 +16,7 @@ job is to expose what the harness needs to fix, not to be correct.
 
 from __future__ import annotations
 
+import re
 from decimal import Decimal
 from typing import Any, cast
 
@@ -27,10 +28,6 @@ from domain.models import Claim, Policy
 from evals.agent_protocol import AgentRunResult
 from evals.scenarios import ExpectedDecision, ExpectedTier, Scenario
 from harness.providers import build_chat_client
-
-import json
-import re
-
 
 INSTRUCTIONS = """\
 You are an auto-insurance claims adjudication assistant. Your job is to review
@@ -58,7 +55,7 @@ _MARKDOWN_FENCE_RE = re.compile(r"^```(?:json)?\s*(.*?)\s*```$", re.DOTALL)
 
 def _strip_json_fences(text: str) -> str:
         """STAGE 1 PATCH — should move to middleware in Stage 2.
-        
+
         Some open-weight models wrap JSON in markdown fences despite
         response_format. Strip them so json.loads succeeds.
         """
@@ -193,7 +190,8 @@ class FnolAgent:
                         payout_amount=None,
                         tool_calls_made=[],
                         reasoning="",
-                        error=f"JSON parse failed; fence-strip fallback also failed: {fallback_error}",
+                        error=f"""JSON parse failed; fence-strip fallback also
+                        failed: {fallback_error}""",
                     )
             else:
                 return AgentRunResult(error=str(e), reasoning="")

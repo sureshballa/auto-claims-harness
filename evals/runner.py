@@ -61,8 +61,7 @@ if __name__ == "__main__":
     import sys
 
     from evals.metrics import report_summary
-    from evals.null_agent import NullAgent
-    
+
     async def main() -> None:
         agent_kind = sys.argv[1] if len(sys.argv) > 1 else "fnol"
 
