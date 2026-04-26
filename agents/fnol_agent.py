@@ -4,10 +4,10 @@ This is the first real agent in the harness. It satisfies the EvalAgent protocol
 and uses MAF with the configured LLM to produce an AgentRunResult. It is
 deliberately naive:
 
-- No middleware (no retry, no circuit-breaker, no telemetry)
+- Agent-driven response normalization (normalizer called directly; no MAF middleware)
 - No tools (no domain function calls beyond loading seed data)
 - Single short instruction prompt (no chain-of-thought, no examples)
-- Structured output from the LLM, unmarshal-and-map only
+- Manual JSON parsing of LLM text, unmarshal-and-map only
 
 The failures this agent exhibits — missed tiers, wrong decisions on adversarial
 inputs, fabricated payouts — are inputs to subsequent stage designs. Stage 1's
@@ -16,17 +16,17 @@ job is to expose what the harness needs to fix, not to be correct.
 
 from __future__ import annotations
 
-import re
 from decimal import Decimal
-from typing import Any, cast
+from typing import Any
 
-from agent_framework.openai import OpenAIChatOptions
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import ValidationError
 
 from domain.mock_data import load_claims, load_policies
 from domain.models import Claim, Policy
 from evals.agent_protocol import AgentRunResult
 from evals.scenarios import ExpectedDecision, ExpectedTier, Scenario
+from harness.contracts import AgentDecision
+from harness.middleware import ResponseNormalizer
 from harness.providers import build_chat_client
 
 INSTRUCTIONS = """\
@@ -51,37 +51,6 @@ RULES
 - Verify the policy covers the incident type before approving.
 - Return your response as JSON exactly matching the AgentDecision schema provided.
 """
-_MARKDOWN_FENCE_RE = re.compile(r"^```(?:json)?\s*(.*?)\s*```$", re.DOTALL)
-
-def _strip_json_fences(text: str) -> str:
-        """STAGE 1 PATCH — should move to middleware in Stage 2.
-
-        Some open-weight models wrap JSON in markdown fences despite
-        response_format. Strip them so json.loads succeeds.
-        """
-        match = _MARKDOWN_FENCE_RE.match(text.strip())
-        return match.group(1) if match else text
-
-class AgentDecision(BaseModel):
-    """Structured response we ask the LLM to produce.
-
-    Uses plain str fields rather than domain enums because the LLM is more
-    likely to comply with simple string constraints than with typed enum members.
-    Callers map these strings back to domain types after parsing.
-
-    payout_amount is float here because LLM JSON output has no Decimal type.
-    It is immediately converted to Decimal(str(...)) in run_scenario — never
-    stored or used as float in domain logic.
-    """
-
-    model_config = ConfigDict(frozen=True)
-
-    tier: str = Field(description="One of: green, yellow, red, black. Lowercase.")
-    decision: str = Field(description="One of: approve, deny, escalate. Lowercase.")
-    payout_amount: float = Field(
-        description="Amount the insurer should pay, in USD. Use 0 for denials or escalations."
-    )
-    reasoning: str = Field(description="One-paragraph explanation of how you decided.")
 
 
 def _render_claim_prompt(claim: Claim, policy: Policy | None) -> str:
@@ -138,7 +107,6 @@ def _render_claim_prompt(claim: Claim, policy: Policy | None) -> str:
         ]
 
     lines += ["", "Return your decision as JSON matching the AgentDecision schema."]
-    # print(f"Promtp: {"\n".join(lines)}")
     return "\n".join(lines)
 
 
@@ -146,6 +114,7 @@ class FnolAgent:
     """Stage 1 naive FNOL adjudication agent. Satisfies the EvalAgent protocol."""
 
     def __init__(self) -> None:
+        self._normalizer = ResponseNormalizer()
         client: Any = build_chat_client()  # Any: MAF client type varies by provider
         self._agent: Any = client.as_agent(  # Any: MAF Agent[OptionsCoT], no stub type
             name="FnolAgent",
@@ -153,7 +122,7 @@ class FnolAgent:
         )
 
     async def run_scenario(self, scenario: Scenario) -> AgentRunResult:
-        """Adjudicate one scenario: load data, call LLM, map result."""
+        """Adjudicate one scenario: load data, call LLM, normalize, parse, map result."""
         claims = load_claims()
         claim = next((c for c in claims if c.claim_number == scenario.claim_number), None)
         if claim is None:
@@ -170,31 +139,36 @@ class FnolAgent:
         prompt = _render_claim_prompt(claim, policy)
 
         try:
-            response: Any = await self._agent.run(
-                prompt,
-                options=OpenAIChatOptions(response_format=AgentDecision),
+            response: Any = await self._agent.run(prompt)
+            raw_text: str = response.text
+        except Exception as exc:
+            return AgentRunResult(error=str(exc), reasoning="")
+
+        cleaned = self._normalizer.normalize(raw_text)
+        if cleaned is None:
+            return AgentRunResult(
+                tier_assigned=None,
+                decision=None,
+                payout_amount=None,
+                tool_calls_made=[],
+                reasoning="",
+                error=f"Normalization failed for raw response: {raw_text[:300]}",
             )
-            decision = cast(AgentDecision, response.value)
-        except Exception as e:
-            # Try the fence-stripping fallback before giving up
-            if "Invalid JSON" in str(e) or "json_invalid" in str(e):
-                try:
-                    # Re-run without response_format to get raw text
-                    raw = await self._agent.run(prompt)
-                    cleaned = _strip_json_fences(str(raw))
-                    decision = AgentDecision.model_validate_json(cleaned)
-                except Exception as fallback_error:
-                    return AgentRunResult(
-                        tier_assigned=None,
-                        decision=None,
-                        payout_amount=None,
-                        tool_calls_made=[],
-                        reasoning="",
-                        error=f"""JSON parse failed; fence-strip fallback also
-                        failed: {fallback_error}""",
-                    )
-            else:
-                return AgentRunResult(error=str(e), reasoning="")
+
+        try:
+            decision = AgentDecision.model_validate_json(cleaned)
+        except ValidationError as exc:
+            return AgentRunResult(
+                tier_assigned=None,
+                decision=None,
+                payout_amount=None,
+                tool_calls_made=[],
+                reasoning="",
+                error=(
+                    f"AgentDecision validation failed after normalization: {exc}\n"
+                    f"Cleaned text: {cleaned[:300]}"
+                ),
+            )
 
         try:
             tier_assigned: ExpectedTier | None = ExpectedTier(decision.tier)

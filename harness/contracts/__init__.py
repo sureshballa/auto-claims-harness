@@ -5,6 +5,7 @@ It is the load-bearing boundary between the harness's mechanism layer
 and its policy layer. Pure Python; no MAF imports, no LLM.
 """
 
+from harness.contracts.agent_outputs import AgentDecision
 from harness.contracts.context import ClaimAwareContextProvider
 from harness.contracts.events import Event, EventKind, EventLog
 from harness.contracts.policy import (
@@ -24,6 +25,7 @@ from harness.contracts.principals import (
 
 __all__ = [
     "SYSTEM_PRINCIPAL",
+    "AgentDecision",
     "ClaimAwareContextProvider",
     "Event",
     "EventKind",
