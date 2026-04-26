@@ -24,7 +24,7 @@ import traceback
 from pathlib import Path
 
 from evals.agent_protocol import AgentRunResult, EvalAgent
-from evals.metrics import EvalReport, aggregate, evaluate_scenario
+from evals.metrics import EvalReport, aggregate, evaluate_scenario, report_summary
 from evals.scenarios import Scenario, load_all_scenarios
 
 
@@ -57,8 +57,26 @@ async def run_evaluation(
 
 
 if __name__ == "__main__":
+    import asyncio
+    import sys
+
     from evals.metrics import report_summary
     from evals.null_agent import NullAgent
+    
+    async def main() -> None:
+        agent_kind = sys.argv[1] if len(sys.argv) > 1 else "fnol"
 
-    report = asyncio.run(run_evaluation(NullAgent(), "evals/scenarios"))
-    print(report_summary(report))
+        if agent_kind == "null":
+            from evals.null_agent import NullAgent
+            agent: EvalAgent = NullAgent()
+        elif agent_kind == "fnol":
+            from agents.fnol_agent import FnolAgent
+            agent = FnolAgent()
+        else:
+            print(f"Unknown agent: {agent_kind}. Use 'null' or 'fnol'.")
+            sys.exit(1)
+
+        report = await run_evaluation(agent, Path("evals/scenarios"))
+        print(report_summary(report))
+
+    asyncio.run(main())

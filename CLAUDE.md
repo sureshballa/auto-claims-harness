@@ -81,27 +81,21 @@ This project is organized around 13 harness-engineering principles. See `docs/pr
 ## Current stage
 
 **Stage 0 is complete and signed off** (see `docs/stage-0-signoff.md`).
+**Stage 1 is complete and signed off** (see `docs/stage-1-signoff.md` and `docs/stage-1-notes.md`).
 
-We are now entering **Stage 1: Bare agent**. The first MAF-backed agent is being built
-in `agents/`, satisfying the `EvalAgent` protocol so it can be driven by the eval runner.
-The first goal is to beat the null-baseline accuracy on the green-001 scenario.
+We are now entering **Stage 2: Minimal harness**. The first middleware components are
+being built in `harness/middleware/` — response normalization, policy enforcement,
+audit logging — to address the failure modes documented in `docs/stage-1-notes.md`.
 
-**Stage 1 constraints (deliberate naivety):**
+The first goal is to migrate the Stage 1 patches in `agents/fnol_agent.py` into
+proper MAF function middleware, eliminating the schema-validation errors and
+allowing the FnolAgent to finally produce non-erroring `AgentRunResult` values.
 
-- No middleware (no agent_middleware, function_middleware, or chat_middleware).
-- No tools (the agent reasons from the claim text alone — no policy_lookup, no
-  vehicle_valuation, no payment_instruction).
-- No policy engine. No event log. No principal injection. No context providers
-  beyond what MAF provides by default.
-- No retries. No structured-output validation beyond what `response_format`
-  gives us. No graceful fallbacks if the model returns garbage.
-- The agent's instructions are a single short prompt — not engineered or layered.
+**Stage 2 design drivers (from Stage 1 observations):**
 
-The goal of Stage 1 is to build a deliberately bad agent so Stage 2's harness
-has visible failure modes to address. Resist the urge to make the agent good.
-Make it work. Let it fail in interesting ways. We'll fix the failures with
-harness components in subsequent stages.
+- Mechanical normalization of LLM output (field aliases, missing field defaults, fence stripping)
+- Policy enforcement at high-risk tiers (model cannot unilaterally deny Yellow/Red claims)
+- Externalized policy (aliases, authority rules, etc. live in `config/`, not code)
 
-Stages 2 through 5 still do not exist. Continue to refuse work that depends on
-capabilities planned for those stages — middleware (Stage 2), context providers
-(Stage 3), event-log implementations (Stage 4), multi-agent workflows (Stage 5).
+Stages 3 through 5 still do not exist. Continue to refuse work that depends on
+capabilities planned for those stages.

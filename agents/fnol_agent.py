@@ -141,6 +141,7 @@ def _render_claim_prompt(claim: Claim, policy: Policy | None) -> str:
         ]
 
     lines += ["", "Return your decision as JSON matching the AgentDecision schema."]
+    # print(f"Promtp: {"\n".join(lines)}")
     return "\n".join(lines)
 
 
