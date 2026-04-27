@@ -104,6 +104,16 @@ Stage 1 surfaced.
    tier-decision rules in `config/permissions.yaml` (not code).
 4. **Concrete `PolicyEngine` implementation** — wires the above together
    behind the contract defined in Stage 0.
+3. ~~Externalized policy configuration~~ — **DONE in Lesson 2.3.**
+   Authority rules + normalizer aliases/drops/defaults now live in
+   `config/permissions.yaml`. Loader (`load_permissions`) returns
+   frozen Pydantic models. Engine and normalizer constructors accept
+   their respective config sections. Behavior verified unchanged via
+   unit tests; live runs show the YAML drives real behavior.
+4. **Concrete `PolicyEngine` implementation** — Lesson 2.4. Wires
+   the existing components behind the contract from Stage 0.
+   Open question: should the engine validate model-proposed payout
+   against `domain.calculations.calculate_payout` even on green tier?
 
 **Stage 2 anti-priorities (do NOT build yet):**
 

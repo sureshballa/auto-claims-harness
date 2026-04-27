@@ -15,6 +15,13 @@ models that nominally support structured output but occasionally deviate:
      "reasoning", "amount" instead of "payout_amount").
   3. Missing required fields — model omits fields with obvious defaults (e.g.,
      payout_amount for an escalation).
+
+Field aliases, drop fields, and default values are loaded from
+config/permissions.yaml at startup and passed to the constructor.
+The class does not perform I/O at runtime.
+
+Regex constants (_MARKDOWN_FENCE_RE, _HARMONY_PREFIX_RE) remain in code
+because they are parser implementation details, not externalized policy.
 """
 
 from __future__ import annotations
@@ -24,34 +31,23 @@ import logging
 import re
 from typing import Any
 
+from harness.policy_engine.permissions_loader import ResponseNormalizerConfig
+
 _MARKDOWN_FENCE_RE = re.compile(r"^```(?:json)?\s*(.*?)\s*```$", re.DOTALL)
 _HARMONY_PREFIX_RE = re.compile(
     r"^<\|channel\|>\s*\w+\s*(?:<\|constrain\|>\s*\w+\s*)?<\|message\|>",
     re.IGNORECASE,
 )
 
-_FIELD_ALIASES: dict[str, str | None] = {
-    "amount_paid": "payout_amount",
-    "amount": "payout_amount",
-    "claim_amount": "payout_amount",
-    "reason": "reasoning",
-    "explanation": "reasoning",
-    "rationale": "reasoning",
-    "claim_id": None,    # invented field — not part of AgentDecision schema
-    "claimId": None,
-    "claim_number": None,
-}
-
-_DEFAULT_VALUES: dict[str, Any] = {
-    "payout_amount": 0.0,
-    "reasoning": "(no reasoning provided by model)",
-}
-
 logger = logging.getLogger(__name__)
 
 
 class ResponseNormalizer:
     """Normalize raw LLM text into a clean JSON string parseable as AgentDecision.
+
+    Field aliases, drop fields, and default values are loaded from
+    config/permissions.yaml at startup and passed to the constructor.
+    The class does not perform I/O at runtime.
 
     Handles markdown-fence wrapping, field-name divergence, and missing
     required fields observed with GPT-OSS 20B and similar open-weight models.
@@ -60,7 +56,8 @@ class ResponseNormalizer:
     accumulate across calls. Construct a fresh instance to reset all counts.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, normalizer_config: ResponseNormalizerConfig) -> None:
+        self._config = normalizer_config
         self.runs_processed: int = 0
         self.fence_strips: int = 0
         self.harmony_prefix_strips: int = 0
@@ -85,7 +82,7 @@ class ResponseNormalizer:
         return result
 
     def _normalize_text(self, text: str) -> str | None:
-        """Strip fences, rename aliased fields, apply defaults. Return cleaned JSON or None."""
+        """Strip fences, drop/rename fields, apply defaults. Return cleaned JSON or None."""
         stripped = text.strip()
 
         # Strip Harmony-format wrapper if present (used by GPT-OSS family)
@@ -107,25 +104,25 @@ class ResponseNormalizer:
         if not isinstance(parsed, dict):
             return None
 
-        # Iterate over a snapshot — we mutate parsed in the loop.
+        # Drop before rename: defensive ordering in case a name appears in both
+        # (valid config should not have overlap, but we fail safe here).
         for key in list(parsed.keys()):
-            if key in _FIELD_ALIASES:
-                new_name = _FIELD_ALIASES[key]
-                if new_name is None:
-                    del parsed[key]
-                    self.field_drops += 1
-                    logger.debug("ResponseNormalizer: dropped invented field %r", key)
-                else:
-                    parsed[new_name] = parsed.pop(key)
-                    self.field_renames += 1
-                    logger.debug(
-                        "ResponseNormalizer: renamed field %r -> %r", key, new_name
-                    )
+            if key in self._config.drop_fields:
+                del parsed[key]
+                self.field_drops += 1
+                logger.debug("ResponseNormalizer: dropped invented field %r", key)
+            elif key in self._config.field_aliases:
+                new_name = self._config.field_aliases[key]
+                parsed[new_name] = parsed.pop(key)
+                self.field_renames += 1
+                logger.debug("ResponseNormalizer: renamed field %r -> %r", key, new_name)
 
-        for field, default in _DEFAULT_VALUES.items():
-            if field not in parsed:
-                parsed[field] = default
+        for canonical_name, default in self._config.defaults.items():
+            if canonical_name not in parsed:
+                parsed[canonical_name] = default
                 self.field_defaults_applied += 1
-                logger.debug("ResponseNormalizer: applied default for missing field %r", field)
+                logger.debug(
+                    "ResponseNormalizer: applied default for missing field %r", canonical_name
+                )
 
         return json.dumps(parsed)

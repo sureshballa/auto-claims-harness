@@ -1,0 +1,71 @@
+# Auto Claims Harness — Permissions and Normalization Policy
+#
+# This file defines two pieces of externalized harness policy:
+#   1. tier_authority — which decisions each tier permits the model to make
+#   2. response_normalizer — how the response normalizer maps model
+#      field-name variations to the canonical AgentDecision schema
+#
+# Editing this file is a policy change. Treat like a code change:
+# branch, review, test, merge. Loader rejects unexpected keys at startup
+# to catch typos before they become silent runtime bugs.
+#
+# Tier thresholds (the dollar amounts that map damage to a tier) live
+# separately in config/thresholds.yaml.
+
+tier_authority:
+  green:
+    # Model has full authority on green tier.
+    # Approve, deny, escalate — model's choice stands.
+    allowed_decisions: [approve, deny, escalate]
+    on_disallowed_decision: escalate
+    zero_payout_on_override: false
+    flag_for_investigation: false
+
+  yellow:
+    # Model may only escalate. Approve and deny are overridden to escalate
+    # because adjuster review is required at this tier.
+    allowed_decisions: [escalate]
+    on_disallowed_decision: escalate
+    zero_payout_on_override: true
+    flag_for_investigation: false
+
+  red:
+    # Same as yellow at this stage. Future stages may differentiate
+    # (e.g., red requires senior adjuster, yellow requires any adjuster).
+    allowed_decisions: [escalate]
+    on_disallowed_decision: escalate
+    zero_payout_on_override: true
+    flag_for_investigation: false
+
+  black:
+    # Model is functionally read-only. Even escalate gets flagged for
+    # investigation (the reason text indicates investigation routing).
+    allowed_decisions: [escalate]
+    on_disallowed_decision: escalate
+    zero_payout_on_override: true
+    flag_for_investigation: true
+
+response_normalizer:
+  # Field renames: model output uses these synonyms; map them to the
+  # canonical AgentDecision field names.
+  field_aliases:
+    amount_paid: payout_amount
+    amount: payout_amount
+    claim_amount: payout_amount
+    reason: reasoning
+    explanation: reasoning
+    rationale: reasoning
+
+  # Fields the model invents that aren't part of AgentDecision.
+  # These get silently dropped during normalization.
+  drop_fields:
+    - claim_id
+    - claimId
+    - claim_number
+    - policy_id
+
+  # Defaults applied when AgentDecision required fields are missing
+  # from the model's output.
+  defaults:
+    payout_amount: 0.0
+    reasoning: "(no reasoning provided by model)"

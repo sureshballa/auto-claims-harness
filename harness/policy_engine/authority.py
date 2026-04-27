@@ -14,8 +14,8 @@ Design notes:
 - The engine is pure deterministic Python: no LLM, no MAF, no I/O.
   Same inputs always produce the same ruling. Fully testable in isolation.
 
-- Authority rules are hard-coded in this stage. Externalization to
-  config/permissions.yaml is planned for Lesson 2.3.
+- Authority rules are loaded from config/permissions.yaml at startup and
+  injected into the engine's constructor. The engine performs no I/O.
 """
 
 from __future__ import annotations
@@ -27,6 +27,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from domain.models import Claim
 from domain.tiers import Tier, TierThresholds, assign_tier
 from evals.scenarios import ExpectedDecision
+from harness.policy_engine.permissions_loader import TierAuthorityConfig, TierAuthorityRule
 
 
 class AuthorityRuling(BaseModel):
@@ -77,9 +78,17 @@ class AuthorityRuling(BaseModel):
 class AuthorityEngine:
     """Pure deterministic authority engine. Same inputs → same ruling.
 
-    Hard-coded rules at this stage; will be externalized to
-    config/permissions.yaml in Lesson 2.3.
+    Authority rules are loaded from config/permissions.yaml at startup
+    and passed to the engine's constructor. The engine does not perform
+    I/O at runtime.
+
+    Reason strings are operator-facing language and remain in code (not
+    externalized) — they describe what happened in human terms but do
+    not constitute policy.
     """
+
+    def __init__(self, authority_config: TierAuthorityConfig) -> None:
+        self._config = authority_config
 
     def evaluate(
         self,
@@ -118,58 +127,18 @@ class AuthorityEngine:
             proposed_tier is not None and proposed_tier != computed_tier
         )
 
-        final_decision: ExpectedDecision
-        final_payout: Decimal
-        overridden: bool
-        reason: str
+        rule = self._get_rule_for_tier(computed_tier)
 
-        if computed_tier == Tier.GREEN:
+        if proposed_decision in rule.allowed_decisions:
             final_decision = proposed_decision
-            final_payout = proposed_payout
+            final_payout = Decimal("0") if rule.zero_payout_on_override else proposed_payout
             overridden = False
-            reason = (
-                f"Green-tier claim: model's authority is full. "
-                f"Final decision matches proposal ({proposed_decision.value})."
-            )
-
-        elif computed_tier == Tier.YELLOW:
-            if proposed_decision == ExpectedDecision.ESCALATE:
-                final_decision = ExpectedDecision.ESCALATE
-                final_payout = Decimal("0")
-                overridden = False
-                reason = "Yellow-tier claim: model proposed escalate, accepted."
-            else:
-                final_decision = ExpectedDecision.ESCALATE
-                final_payout = Decimal("0")
-                overridden = True
-                reason = (
-                    f"Yellow-tier claim: model proposed {proposed_decision.value}, "
-                    f"but yellow tier requires adjuster review. Overridden to escalate."
-                )
-
-        elif computed_tier == Tier.RED:
-            if proposed_decision == ExpectedDecision.ESCALATE:
-                final_decision = ExpectedDecision.ESCALATE
-                final_payout = Decimal("0")
-                overridden = False
-                reason = "Red-tier claim: model proposed escalate, accepted."
-            else:
-                final_decision = ExpectedDecision.ESCALATE
-                final_payout = Decimal("0")
-                overridden = True
-                reason = (
-                    f"Red-tier claim: model proposed {proposed_decision.value}, "
-                    f"but red tier requires senior adjuster review. Overridden to escalate."
-                )
-
-        else:  # Tier.BLACK
-            final_decision = ExpectedDecision.ESCALATE
-            final_payout = Decimal("0")
-            overridden = proposed_decision != ExpectedDecision.ESCALATE
-            reason = (
-                f"Black-tier claim: investigation required regardless of model proposal "
-                f"({proposed_decision.value}). Routed to investigation team."
-            )
+            reason = self._build_acceptance_reason(computed_tier, proposed_decision, rule)
+        else:
+            final_decision = rule.on_disallowed_decision
+            final_payout = Decimal("0") if rule.zero_payout_on_override else proposed_payout
+            overridden = True
+            reason = self._build_override_reason(computed_tier, proposed_decision, rule)
 
         return AuthorityRuling(
             proposed_decision=proposed_decision,
@@ -181,4 +150,64 @@ class AuthorityEngine:
             overridden=overridden,
             tier_disagreement=tier_disagreement,
             reason=reason,
+        )
+
+    def _get_rule_for_tier(self, tier: Tier) -> TierAuthorityRule:
+        """Return the TierAuthorityRule for the given Tier enum value."""
+        if tier == Tier.GREEN:
+            return self._config.green
+        elif tier == Tier.YELLOW:
+            return self._config.yellow
+        elif tier == Tier.RED:
+            return self._config.red
+        elif tier == Tier.BLACK:
+            return self._config.black
+        else:
+            # Defensive: assign_tier should never produce another value, but
+            # if it ever does (e.g., new tier added), fail loud rather than
+            # silently fall through.
+            raise ValueError(f"No authority rule for tier {tier!r}")
+
+    def _build_acceptance_reason(
+        self, tier: Tier, decision: ExpectedDecision, rule: TierAuthorityRule
+    ) -> str:
+        """Construct human-readable reason when model's proposal is accepted."""
+        if rule.flag_for_investigation:
+            # Black tier: even accepted escalations are flagged for investigation.
+            return (
+                f"{tier.value.capitalize()}-tier claim: investigation required "
+                f"regardless of model proposal ({decision.value}). "
+                f"Routed to investigation team."
+            )
+        elif tier == Tier.GREEN:
+            return (
+                f"Green-tier claim: model's authority is full. "
+                f"Final decision matches proposal ({decision.value})."
+            )
+        else:
+            return (
+                f"{tier.value.capitalize()}-tier claim: model proposed "
+                f"{decision.value}, accepted."
+            )
+
+    def _build_override_reason(
+        self, tier: Tier, proposed: ExpectedDecision, rule: TierAuthorityRule
+    ) -> str:
+        """Construct human-readable reason when model's proposal is overridden."""
+        if rule.flag_for_investigation:
+            return (
+                f"{tier.value.capitalize()}-tier claim: investigation required "
+                f"regardless of model proposal ({proposed.value}). "
+                f"Routed to investigation team."
+            )
+
+        review_phrase = {
+            Tier.YELLOW: "adjuster review",
+            Tier.RED: "senior adjuster review",
+        }.get(tier, "review")
+
+        return (
+            f"{tier.value.capitalize()}-tier claim: model proposed "
+            f"{proposed.value}, but {tier.value} tier requires {review_phrase}. "
+            f"Overridden to {rule.on_disallowed_decision.value}."
         )

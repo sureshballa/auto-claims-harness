@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from datetime import date
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
@@ -22,7 +23,9 @@ from domain.models import (
 )
 from domain.tiers import Tier, TierThresholds
 from evals.scenarios import ExpectedDecision
+from harness.policy_engine import load_permissions
 from harness.policy_engine.authority import AuthorityEngine
+from harness.policy_engine.permissions_loader import TierAuthorityConfig
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -30,6 +33,8 @@ from harness.policy_engine.authority import AuthorityEngine
 
 _TODAY = date(2024, 9, 1)
 _VIN = "1HG" + "0" * 14  # valid 17-char VIN
+
+_PERMISSIONS_PATH = Path(__file__).parent.parent / "config" / "permissions.yaml"
 
 
 @pytest.fixture
@@ -42,8 +47,13 @@ def thresholds() -> TierThresholds:
 
 
 @pytest.fixture
-def engine() -> AuthorityEngine:
-    return AuthorityEngine()
+def authority_config() -> TierAuthorityConfig:
+    return load_permissions(_PERMISSIONS_PATH).tier_authority
+
+
+@pytest.fixture
+def engine(authority_config: TierAuthorityConfig) -> AuthorityEngine:
+    return AuthorityEngine(authority_config)
 
 
 def make_claim_with_damage(amount: Decimal, injuries: bool = False) -> Claim:
@@ -368,14 +378,16 @@ def test_ruling_serializable_to_dict(
         assert key in d, f"Missing key in model_dump(): {key!r}"
 
 
-def test_engine_is_deterministic(thresholds: TierThresholds) -> None:
+def test_engine_is_deterministic(
+    authority_config: TierAuthorityConfig, thresholds: TierThresholds
+) -> None:
     """Two independent AuthorityEngine instances produce identical rulings for the same inputs."""
     claim = make_claim_with_damage(Decimal("2800"))
-    ruling_a = AuthorityEngine().evaluate(
+    ruling_a = AuthorityEngine(authority_config).evaluate(
         claim, thresholds, ExpectedDecision.APPROVE, Decimal("2800"),
         proposed_tier=Tier.GREEN,
     )
-    ruling_b = AuthorityEngine().evaluate(
+    ruling_b = AuthorityEngine(authority_config).evaluate(
         claim, thresholds, ExpectedDecision.APPROVE, Decimal("2800"),
         proposed_tier=Tier.GREEN,
     )

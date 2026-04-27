@@ -9,124 +9,134 @@ by the agent (see agents/fnol_agent.py), not via MAF middleware.
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
-from harness.middleware.response_normalizer import (
-    _DEFAULT_VALUES,
-    ResponseNormalizer,
-)
+import pytest
 
+from harness.middleware.response_normalizer import ResponseNormalizer
+from harness.policy_engine import load_permissions
+from harness.policy_engine.permissions_loader import ResponseNormalizerConfig
 
-def _make_n() -> ResponseNormalizer:
-    return ResponseNormalizer()
+_PERMISSIONS_PATH = Path(__file__).parent.parent / "config" / "permissions.yaml"
 
 
 # ---------------------------------------------------------------------------
-# _normalize_text — transformation logic (no counters touched)
+# Fixtures
 # ---------------------------------------------------------------------------
 
-def test_strips_harmony_prefix() -> None:
-    n = ResponseNormalizer()
+
+@pytest.fixture
+def normalizer_config() -> ResponseNormalizerConfig:
+    return load_permissions(_PERMISSIONS_PATH).response_normalizer
+
+
+@pytest.fixture
+def normalizer(normalizer_config: ResponseNormalizerConfig) -> ResponseNormalizer:
+    return ResponseNormalizer(normalizer_config)
+
+
+# ---------------------------------------------------------------------------
+# _normalize_text — transformation logic (no counters touched by the public API)
+# ---------------------------------------------------------------------------
+
+
+def test_strips_harmony_prefix(normalizer: ResponseNormalizer) -> None:
     raw = '<|channel|>final <|constrain|>JSON<|message|>{"tier": "green"}'
-    result = n.normalize(raw)
+    result = normalizer.normalize(raw)
     assert result is not None
     parsed = json.loads(result)
     assert parsed["tier"] == "green"
-    assert n.harmony_prefix_strips == 1
+    assert normalizer.harmony_prefix_strips == 1
 
 
-def test_strips_harmony_prefix_then_fences() -> None:
-    n = ResponseNormalizer()
+def test_strips_harmony_prefix_then_fences(normalizer: ResponseNormalizer) -> None:
     raw = '<|channel|>final<|message|>```json\n{"tier": "green"}\n```'
-    result = n.normalize(raw)
+    result = normalizer.normalize(raw)
     assert result is not None
-    assert n.harmony_prefix_strips == 1
-    assert n.fence_strips == 1
+    assert normalizer.harmony_prefix_strips == 1
+    assert normalizer.fence_strips == 1
 
-def test_strips_markdown_fences() -> None:
+
+def test_strips_markdown_fences(normalizer: ResponseNormalizer) -> None:
     """Markdown-fenced JSON is unwrapped and the fence counter incremented.
 
     _normalize_text always applies defaults after stripping, so the output
     dict will contain more than just {"x": 1} — we assert only the structural
     facts this test is responsible for.
     """
-    n = _make_n()
-    result = n._normalize_text('```json\n{"x": 1}\n```')
+    result = normalizer._normalize_text('```json\n{"x": 1}\n```')
 
     assert result is not None
     parsed = json.loads(result)
     assert parsed["x"] == 1          # original key preserved
-    assert n.fence_strips == 1        # fence was stripped
-    assert n.field_renames == 0       # no aliasing involved
+    assert normalizer.fence_strips == 1        # fence was stripped
+    assert normalizer.field_renames == 0       # no aliasing involved
 
 
-def test_aliases_field_name() -> None:
+def test_aliases_field_name(normalizer: ResponseNormalizer) -> None:
     """An aliased field name is renamed to the canonical AgentDecision field."""
-    n = _make_n()
-    result = n._normalize_text('{"amount_paid": 100}')
+    result = normalizer._normalize_text('{"amount_paid": 100}')
 
     assert result is not None
     parsed = json.loads(result)
     assert "payout_amount" in parsed
     assert parsed["payout_amount"] == 100
     assert "amount_paid" not in parsed
-    assert n.field_renames == 1
+    assert normalizer.field_renames == 1
 
 
-def test_drops_invented_fields() -> None:
+def test_drops_invented_fields(normalizer: ResponseNormalizer) -> None:
     """Fields in the alias map with a None target are removed from the output."""
-    n = _make_n()
-    result = n._normalize_text('{"claim_id": "X", "tier": "green"}')
+    result = normalizer._normalize_text('{"claim_id": "X", "tier": "green"}')
 
     assert result is not None
     parsed = json.loads(result)
     assert "claim_id" not in parsed
     assert parsed["tier"] == "green"
-    assert n.field_drops == 1
+    assert normalizer.field_drops == 1
 
 
-def test_applies_defaults() -> None:
+def test_applies_defaults(
+    normalizer: ResponseNormalizer, normalizer_config: ResponseNormalizerConfig
+) -> None:
     """Missing required fields receive their configured default values."""
-    n = _make_n()
-    result = n._normalize_text('{"tier": "green", "decision": "approve"}')
+    result = normalizer._normalize_text('{"tier": "green", "decision": "approve"}')
 
     assert result is not None
     parsed = json.loads(result)
-    assert parsed["payout_amount"] == _DEFAULT_VALUES["payout_amount"]
-    assert parsed["reasoning"] == _DEFAULT_VALUES["reasoning"]
-    assert n.field_defaults_applied == 2
+    assert parsed["payout_amount"] == normalizer_config.defaults["payout_amount"]
+    assert parsed["reasoning"] == normalizer_config.defaults["reasoning"]
+    assert normalizer.field_defaults_applied == 2
 
 
-def test_invalid_json_returns_none() -> None:
+def test_invalid_json_returns_none(normalizer: ResponseNormalizer) -> None:
     """Unparseable text returns None; no transformation counters are touched."""
-    n = _make_n()
-    result = n._normalize_text("not json at all")
+    result = normalizer._normalize_text("not json at all")
 
     assert result is None
-    assert n.fence_strips == 0
-    assert n.field_renames == 0
-    assert n.normalizations_succeeded == 0
+    assert normalizer.fence_strips == 0
+    assert normalizer.field_renames == 0
+    assert normalizer.normalizations_succeeded == 0
 
 
-def test_list_at_top_level_returns_none() -> None:
+def test_list_at_top_level_returns_none(normalizer: ResponseNormalizer) -> None:
     """A JSON array at the top level is not a normalizable object; return None."""
-    n = _make_n()
-    result = n._normalize_text("[1, 2, 3]")
+    result = normalizer._normalize_text("[1, 2, 3]")
 
     assert result is None
 
 
-def test_passthrough_for_already_clean_input() -> None:
+def test_passthrough_for_already_clean_input(normalizer: ResponseNormalizer) -> None:
     """Valid AgentDecision JSON passes through with no transformation counters set."""
-    n = _make_n()
     clean = '{"tier":"green","decision":"approve","payout_amount":0.0,"reasoning":"all good"}'
-    result = n._normalize_text(clean)
+    result = normalizer._normalize_text(clean)
 
     assert result is not None
     assert json.loads(result) == json.loads(clean)
-    assert n.fence_strips == 0
-    assert n.field_renames == 0
-    assert n.field_drops == 0
-    assert n.field_defaults_applied == 0
+    assert normalizer.fence_strips == 0
+    assert normalizer.field_renames == 0
+    assert normalizer.field_drops == 0
+    assert normalizer.field_defaults_applied == 0
 
 
 # ---------------------------------------------------------------------------
@@ -134,23 +144,21 @@ def test_passthrough_for_already_clean_input() -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_normalize_increments_counters_on_success() -> None:
+def test_normalize_increments_counters_on_success(normalizer: ResponseNormalizer) -> None:
     """normalize() increments runs_processed and normalizations_succeeded on parseable input."""
-    n = _make_n()
-    result = n.normalize('{"tier": "green"}')
+    result = normalizer.normalize('{"tier": "green"}')
 
     assert result is not None
-    assert n.runs_processed == 1
-    assert n.normalizations_succeeded == 1
-    assert n.normalizations_failed == 0
+    assert normalizer.runs_processed == 1
+    assert normalizer.normalizations_succeeded == 1
+    assert normalizer.normalizations_failed == 0
 
 
-def test_normalize_increments_counters_on_failure() -> None:
+def test_normalize_increments_counters_on_failure(normalizer: ResponseNormalizer) -> None:
     """normalize() increments runs_processed and normalizations_failed on unparseable input."""
-    n = _make_n()
-    result = n.normalize("not json at all")
+    result = normalizer.normalize("not json at all")
 
     assert result is None
-    assert n.runs_processed == 1
-    assert n.normalizations_succeeded == 0
-    assert n.normalizations_failed == 1
+    assert normalizer.runs_processed == 1
+    assert normalizer.normalizations_succeeded == 0
+    assert normalizer.normalizations_failed == 1

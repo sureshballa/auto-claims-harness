@@ -76,6 +76,44 @@ or alternative implementations for comparison (Stage 4+) with the same runner.
 These notes are pinned to MAF >=1.1,<2.0. They may not apply to future versions;
 re-verify when the version constraint is bumped.
 
+### Authority enforcement: regular class, not MAF middleware
+
+**Decision:** `harness/policy_engine/authority.py` is a regular Python
+class (`AuthorityEngine`) called directly from the agent's `run_scenario`,
+not an MAF middleware (`AgentMiddleware`, `FunctionMiddleware`, or
+`ChatMiddleware`).
+
+**Rationale:** Authority enforcement is domain-specific logic, not a
+cross-cutting concern. Three properties make a regular class the better
+fit:
+
+1. **Domain-typed inputs:** the engine operates on `Claim`, `Tier`,
+   `TierThresholds`, `ExpectedDecision` — none of which are MAF types.
+   Middleware would require ceremonial extraction from `AgentContext`
+   types on every call.
+2. **Cross-context portability:** as a regular class, the engine is
+   callable from non-agent contexts (batch reconciliation scripts,
+   eval-time validators, future synchronous callers). Middleware would
+   couple it to MAF's pipeline.
+3. **Testability:** the engine is testable with plain Python objects
+   and 19 unit tests run in milliseconds. No fakes, no async, no MAF
+   pipeline plumbing.
+
+**What this is NOT a verdict against:** MAF middleware remains the right
+tool for genuinely cross-cutting concerns — telemetry/OpenTelemetry
+instrumentation (Stage 4), principal injection via
+`function_invocation_kwargs` (Stage 4+), tool-approval gates via
+`FunctionMiddleware` (Stage 3+), rate limiting, and pre-flight content
+guardrails. We expect to use middleware in those layers.
+
+**What this DOES suggest revisiting later:** the response normalizer in
+`harness/middleware/response_normalizer.py` is implemented as manual
+orchestration after two failed MAF middleware attempts. Schema cleaning
+is more genuinely cross-cutting than authority enforcement, and the
+failures may have been misdiagnoses we didn't pursue carefully. Open
+question: revisit at Stage 4 if we have multiple agents producing
+structured output that all need normalization.
+
 ### API surface differs from current Microsoft Learn docs
 
 The Microsoft Learn docs at
@@ -152,17 +190,22 @@ Eval-side contracts (also stable):
   overlap, and which signals belong in which?
 - **Stage 5**: MAF Workflow edge permissions — primitives sufficient, or do we
   add a workflow-level policy layer?
-  - **Stage 4 (telemetry)**: Every agent run should log the exact prompt
+- **Stage 4 (telemetry)**: Every agent run should log the exact prompt
   sent to the model, not just the response. The Stage 2.2 prompt-rendering
   bug went undetected for 1+ stage because we logged responses but not
   prompts. Telemetry should bake this in.
-
 - **Stage 2.3 / 2.4**: GPT-OSS 20B does not return a `reasoning` field
   in its JSON output. The audit trail shows `(no reasoning provided by
   model)` for every successful run. Investigate whether stronger prompt
   engineering can elicit reasoning, or whether this is an inherent
   limitation of the model.
-
+- **Stage 2.5 (sign-off)**: The eval runner reports a single pass/fail
+  per scenario per invocation. Empirical observation in Lesson 2.3
+  (3 runs of green-001 produced deny/approve/approve) shows the model
+  is probabilistic — one eval invocation can produce 67% or 100%
+  accuracy on the same code, same prompt, same model, depending on
+  sampling. The eval should run each scenario N times (default 3-5)
+  and report accuracy as a fraction, not pass/fail. Address at sign-off.
 - **Stage 3+ (advanced)**: Should our externalized tier thresholds
   appear in the prompt sent to the model? Currently the model doesn't
   know the $500/$5000/$25000 cutoffs and uses its own training-time

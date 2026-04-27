@@ -31,7 +31,11 @@ from evals.agent_protocol import AgentRunResult
 from evals.scenarios import ExpectedDecision, ExpectedTier, Scenario
 from harness.contracts import AgentDecision
 from harness.middleware import ResponseNormalizer
-from harness.policy_engine import AuthorityEngine, load_thresholds
+from harness.policy_engine import (
+    AuthorityEngine,
+    load_permissions,
+    load_thresholds,
+)
 from harness.providers import build_chat_client
 
 _THRESHOLDS_PATH = Path(__file__).parent.parent / "config" / "thresholds.yaml"
@@ -141,9 +145,10 @@ class FnolAgent:
     """Stage 1 naive FNOL adjudication agent. Satisfies the EvalAgent protocol."""
 
     def __init__(self) -> None:
-        self._normalizer = ResponseNormalizer()
         self._thresholds: TierThresholds = load_thresholds(_THRESHOLDS_PATH)
-        self._authority = AuthorityEngine()
+        permissions = load_permissions(Path("config/permissions.yaml"))
+        self._normalizer = ResponseNormalizer(permissions.response_normalizer)
+        self._authority = AuthorityEngine(permissions.tier_authority)
         client: Any = build_chat_client()  # Any: MAF client type varies by provider
         self._agent: Any = client.as_agent(  # Any: MAF Agent[OptionsCoT], no stub type
             name="FnolAgent",
@@ -167,12 +172,12 @@ class FnolAgent:
 
         prompt = _render_claim_prompt(claim, policy)
 
-        print(f"prompt: {prompt}")
+        # print(f"prompt: {prompt}")
 
         try:
             response: Any = await self._agent.run(prompt)
             raw_text: str = response.text
-            print(f"raw_response: {raw_text}")
+            # print(f"raw_response: {raw_text}")
         except Exception as exc:
             return AgentRunResult(error=str(exc), reasoning="")
 
