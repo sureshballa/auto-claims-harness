@@ -141,12 +141,35 @@ Eval-side contracts (also stable):
 - **Stage 2**: How do we adjudicate between MAF's tool `approval_mode` and our
   custom function middleware? Both can gate; running both is redundant; running
   neither is unsafe.
+- **Stage 2.4**: Should the AuthorityEngine validate model-proposed payout
+  against the deterministic calculation from `domain.calculations`, even on
+  green-tier claims? Current implementation trusts the model's payout for
+  green tier; a stricter version would compute the authoritative amount
+  and override if the model's value differs significantly.
 - **Stage 3**: MAF ContextProviders + our `ClaimAwareContextProvider` — one class
   implementing both, or composed?
 - **Stage 4**: OTel traces (operational) vs. our `EventLog` (audit). Where's the
   overlap, and which signals belong in which?
 - **Stage 5**: MAF Workflow edge permissions — primitives sufficient, or do we
   add a workflow-level policy layer?
+  - **Stage 4 (telemetry)**: Every agent run should log the exact prompt
+  sent to the model, not just the response. The Stage 2.2 prompt-rendering
+  bug went undetected for 1+ stage because we logged responses but not
+  prompts. Telemetry should bake this in.
+
+- **Stage 2.3 / 2.4**: GPT-OSS 20B does not return a `reasoning` field
+  in its JSON output. The audit trail shows `(no reasoning provided by
+  model)` for every successful run. Investigate whether stronger prompt
+  engineering can elicit reasoning, or whether this is an inherent
+  limitation of the model.
+
+- **Stage 3+ (advanced)**: Should our externalized tier thresholds
+  appear in the prompt sent to the model? Currently the model doesn't
+  know the $500/$5000/$25000 cutoffs and uses its own training-time
+  intuition about "small/medium/large" claims. Putting thresholds in
+  the prompt would give the model a chance to classify correctly,
+  reducing tier disagreements (though the harness's authority would
+  remain the source of truth).
 
 ## Revision log
 
@@ -159,3 +182,7 @@ Eval-side contracts (also stable):
 ## Verification Stack
 
   The project's verification stack combines deterministic fitness functions (mypy strict mode, ruff rule sets), AI-assisted architectural review (/harness-check), unit-level correctness (pytest), and behavioral fitness measurement (eval suite). Rules expressible as deterministic checks should be promoted from the AI-assisted layer to the mechanical layer over time.
+
+  - **Stage 5**: ResponseNormalizerMiddleware uses non-thread-safe instance
+  counters. Sequential eval runs are fine; concurrent agent execution would
+  produce incorrect counts. Revisit when workflows arrive.

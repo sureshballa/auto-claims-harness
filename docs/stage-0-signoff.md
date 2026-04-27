@@ -59,6 +59,30 @@ These are scoped technical debt — known, named, scheduled.
 - **MAF GitHub issue #1772**: `ChatMiddleware` with local OpenAI-compat models doubles system instructions. Will hit at Stage 2 when we add chat middleware. Revisit then.
 - **MAF API drift between docs and 1.1.x.** Documented in `maf-mapping.md`. Re-verify when we bump the MAF version constraint.
 - **GPT-OSS 20B sometimes fails simple instruction-following** (e.g., "reply in three words" returned four). Mitigation is harness validation of agent output, not prompt tweaking.
+### Recovery: missing thresholds loader (discovered Stage 2.2)
+
+The `harness/policy_engine/thresholds_loader.py` module and 
+`config/thresholds.yaml` file were originally specified in Lesson 0.6 
+and listed in Stage 0's sign-off checklist as delivered. They were 
+discovered missing at the start of Lesson 2.2 — likely never committed 
+in the original Stage 0 work, despite tests passing in some form during 
+that lesson.
+
+Both files were recreated as a prerequisite for Lesson 2.2:
+- `config/thresholds.yaml` — externalized tier thresholds (500 / 5000 / 25000)
+- `harness/policy_engine/thresholds_loader.py` — strict YAML loader with 
+  validation
+- `tests/test_policy_engine_thresholds.py` — 8 tests covering happy path 
+  and adversarial inputs
+
+This is recorded honestly because the staged-debt discipline requires 
+acknowledging gaps explicitly, even when they appeared after-the-fact. 
+The Stage 0 tag `stage-0` reflects the project state as it actually was 
+when tagged, not as the sign-off described it.
+
+Lesson learned: future stage sign-offs should verify each checklist item 
+is actually present in the committed tree, not just that it was created 
+at some point during the stage.
 
 ## Entry conditions for Stage 1
 
@@ -80,6 +104,6 @@ Build `agents/fnol_agent.py` containing a class `FnolAgent` that:
 4. Sends a structured prompt to the model asking for tier and decision
 5. Returns an `AgentRunResult` with the LLM's tier/decision parsed back into our types
 
-The success criterion: `python -m evals.runner` (with `FnolAgent` swapped in for `NullAgent`) produces a higher decision-accuracy score than the null baseline, on at least the green-001 scenario.
+The success criterion: `python -m evals.runner` (with `FnolAgeKnown issues to revisitnt` swapped in for `NullAgent`) produces a higher decision-accuracy score than the null baseline, on at least the green-001 scenario.
 
 That's Stage 1's day-one target.

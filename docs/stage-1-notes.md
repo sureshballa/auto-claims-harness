@@ -136,3 +136,20 @@ extensibility layer.
 - **FnolAgent (Stage 1, naive):** 0% decision accuracy
 - **Headline:** The naive agent loses to the do-nothing baseline.
   This is the motivation for Stage 2.
+
+## Discovered late: prompt-rendering bug masked model behavior
+
+While running Stage 2.2 with prompt-printing enabled, the prompt-rendering
+helper in `agents/fnol_agent.py` was found to be incorrectly tagging every
+policy as `[EXPIRED]` regardless of the incident date. The bug was using
+a non-existent attribute `policy.is_active` instead of calling
+`policy.is_active_on(claim.incident.incident_date)`.
+
+This means several Stage 1 and early Stage 2 observations about model
+behavior were actually responses to lying prompts. Specifically: the
+model's tendency to deny green-001 was a defensible response to a prompt
+that falsely claimed the policy was expired.
+
+Lesson learned: prompts must be logged and inspected with the same rigor
+as responses. When an agent produces a surprising answer, examine the
+prompt before theorizing about the model.

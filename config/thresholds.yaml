@@ -1,0 +1,33 @@
+# Auto Claims Harness — Tier Thresholds
+#
+# This file defines the dollar thresholds that map a claim's assessed
+# damage amount to a triage tier (Green / Yellow / Red / Black).
+#
+# Editing this file changes how every subsequent process invocation
+# triages claims. Changes take effect on process restart (the loader
+# treats the file as a load-once snapshot — see harness/policy_engine/).
+#
+# Any change to this file is a policy change. Treat it like a code
+# change: branch, review, test, merge.
+#
+# Constraints (enforced by the loader, will fail loudly if violated):
+#   - All values must be positive
+#   - green_max_damage < yellow_max_damage < red_max_damage
+#   - Currency: USD, expressed as integer dollars (no cents in this file;
+#     the loader converts to Decimal)
+
+# Maximum assessed damage (USD) for the GREEN tier.
+# At or below this amount, claims may be auto-approved if all other
+# eligibility checks pass (coverage applies, no fraud signals, etc.).
+green_max_damage: 500
+
+# Maximum assessed damage (USD) for the YELLOW tier.
+# Between green_max_damage and this amount, claims require an adjuster
+# review before payment.
+yellow_max_damage: 5000
+
+# Maximum assessed damage (USD) for the RED tier.
+# Between yellow_max_damage and this amount, claims require senior
+# adjuster sign-off. Above this amount, claims become BLACK tier
+# (investigation required, agent is read-only).
+red_max_damage: 25000
