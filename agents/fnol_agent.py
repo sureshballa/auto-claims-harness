@@ -52,13 +52,18 @@ Assign one of these tiers based on damage severity and risk:
 
 DECISIONS
 Choose exactly one:
-  approve:  Authorize payment for a covered loss within policy limits.
-  deny:     Decline payment — policy not active, coverage exclusion, or fraud indicator.
+  approve:  Recognize a covered loss. Authorize payment within policy limits
+            if payment is owed; payment may be 0 if damage is below the deductible.
+  deny:     Decline a claim — policy not active, no applicable coverage, or fraud indicator.
   escalate: Forward to a human adjuster — missing information, ambiguity, or high-severity tier.
 
 RULES
 - If any required information is missing or unclear, choose ESCALATE rather than guess.
 - Verify the policy covers the incident type before approving.
+- If the assessed damage is below the policy deductible for the relevant coverage, choose APPROVE
+  with payout 0. The claim itself is valid — coverage applies — but no payment is owed because
+  the deductible has not been met. Do NOT choose DENY in this case; denial is reserved for
+  invalid claims (no coverage, fraud, expired policy).
 - Return your response as JSON exactly matching the AgentDecision schema provided.
 """
 
