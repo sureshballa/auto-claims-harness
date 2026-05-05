@@ -6,6 +6,11 @@ and its policy layer. Pure Python; no MAF imports, no LLM.
 """
 
 from harness.contracts.agent_outputs import AgentDecision
+from harness.contracts.claim_decisions import (
+    ClaimDecisionEngine,
+    ClaimDecisionRequest,
+    ClaimDecisionRuling,
+)
 from harness.contracts.context import ClaimAwareContextProvider
 from harness.contracts.events import Event, EventKind, EventLog
 from harness.contracts.policy import (
@@ -14,6 +19,7 @@ from harness.contracts.policy import (
     PolicyRequest,
     PolicyRuling,
 )
+from harness.contracts.policy_repository import PolicyRepository
 from harness.contracts.principals import (
     SYSTEM_PRINCIPAL,
     Principal,
@@ -27,16 +33,20 @@ __all__ = [
     "SYSTEM_PRINCIPAL",
     "AgentDecision",
     "ClaimAwareContextProvider",
+    "ClaimDecisionEngine",
+    "ClaimDecisionRequest",
+    "ClaimDecisionRuling",
     "Event",
     "EventKind",
     "EventLog",
     "PolicyDecision",
     "PolicyEngine",
+    "PolicyRepository",
     "PolicyRequest",
     "PolicyRuling",
     "Principal",
     "PrincipalKind",
     "adjuster_of",
     "claimant_of",
-    "senior_adjuster_of",
+    "senior_adjuster_of"
 ]

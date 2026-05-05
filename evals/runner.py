@@ -70,7 +70,19 @@ if __name__ == "__main__":
             agent: EvalAgent = NullAgent()
         elif agent_kind == "fnol":
             from agents.fnol_agent import FnolAgent
-            agent = FnolAgent()
+            from harness.policy_engine import (
+                AuthorityEngine,
+                HarnessPolicyEngine,
+                MockDataPolicyRepository,
+                load_permissions,
+                load_thresholds,
+            )
+            thresholds = load_thresholds(Path("config/thresholds.yaml"))
+            permissions = load_permissions(Path("config/permissions.yaml"))
+            authority = AuthorityEngine(permissions.tier_authority)
+            decision_engine = HarnessPolicyEngine(authority, thresholds)
+            repository = MockDataPolicyRepository()
+            agent = FnolAgent(decision_engine, repository)
         else:
             print(f"Unknown agent: {agent_kind}. Use 'null' or 'fnol'.")
             sys.exit(1)

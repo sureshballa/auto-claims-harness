@@ -14,6 +14,9 @@ from pydantic import ValidationError
 from harness.contracts import (
     SYSTEM_PRINCIPAL,
     ClaimAwareContextProvider,
+    ClaimDecisionEngine,
+    ClaimDecisionRequest,
+    ClaimDecisionRuling,
     Event,
     EventKind,
     EventLog,
@@ -159,6 +162,14 @@ def test_policy_engine_protocol_structural_conformance() -> None:
             return PolicyRuling(decision=PolicyDecision.ALLOW, reason="always allow")
 
     assert isinstance(AlwaysAllowEngine(), PolicyEngine)
+
+
+def test_claim_decision_engine_protocol_structural_conformance() -> None:
+    class StubDecisionEngine:
+        def evaluate(self, request: ClaimDecisionRequest) -> ClaimDecisionRuling:
+            raise NotImplementedError
+
+    assert isinstance(StubDecisionEngine(), ClaimDecisionEngine)
 
 
 def test_claim_aware_context_provider_protocol_structural_conformance() -> None:

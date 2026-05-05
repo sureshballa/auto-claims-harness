@@ -7,13 +7,13 @@ deliberately naive:
 - Agent-driven response normalization (normalizer called directly; no MAF middleware)
 - No tools (no domain function calls beyond loading seed data)
 - Single short instruction prompt (no chain-of-thought, no examples)
-- Manual JSON parsing of LLM text, then AuthorityEngine enforces harness rules
+- Manual JSON parsing of LLM text, then ClaimDecisionEngine enforces harness rules
 
 The failures this agent exhibits — missed tiers, wrong decisions on adversarial
 inputs, fabricated payouts — are inputs to subsequent stage designs. Stage 1's
 job is to expose what the harness needs to fix, not to be correct. The
-AuthorityEngine ensures that even when the model is wrong, the harness's ruling
-is defensible.
+ClaimDecisionEngine ensures that even when the model is wrong, the harness's
+ruling is defensible.
 """
 
 from __future__ import annotations
@@ -24,21 +24,20 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from domain.mock_data import load_claims, load_policies
+from domain.mock_data import load_claims
 from domain.models import Claim, Policy
-from domain.tiers import Tier, TierThresholds
+from domain.tiers import Tier
 from evals.agent_protocol import AgentRunResult
 from evals.scenarios import ExpectedDecision, ExpectedTier, Scenario
-from harness.contracts import AgentDecision
-from harness.middleware import ResponseNormalizer
-from harness.policy_engine import (
-    AuthorityEngine,
-    load_permissions,
-    load_thresholds,
+from harness.contracts import (
+    AgentDecision,
+    ClaimDecisionEngine,
+    ClaimDecisionRequest,
+    PolicyRepository,
 )
+from harness.middleware import ResponseNormalizer
+from harness.policy_engine import load_permissions
 from harness.providers import build_chat_client
-
-_THRESHOLDS_PATH = Path(__file__).parent.parent / "config" / "thresholds.yaml"
 
 INSTRUCTIONS = """\
 You are an auto-insurance claims adjudication assistant. Your job is to review
@@ -144,11 +143,15 @@ def _render_claim_prompt(claim: Claim, policy: Policy | None) -> str:
 class FnolAgent:
     """Stage 1 naive FNOL adjudication agent. Satisfies the EvalAgent protocol."""
 
-    def __init__(self) -> None:
-        self._thresholds: TierThresholds = load_thresholds(_THRESHOLDS_PATH)
+    def __init__(
+        self,
+        claim_decision_engine: ClaimDecisionEngine,
+        policy_repository: PolicyRepository,
+    ) -> None:
+        self._engine = claim_decision_engine
+        self._policy_repository = policy_repository
         permissions = load_permissions(Path("config/permissions.yaml"))
         self._normalizer = ResponseNormalizer(permissions.response_normalizer)
-        self._authority = AuthorityEngine(permissions.tier_authority)
         client: Any = build_chat_client()  # Any: MAF client type varies by provider
         self._agent: Any = client.as_agent(  # Any: MAF Agent[OptionsCoT], no stub type
             name="FnolAgent",
@@ -165,10 +168,7 @@ class FnolAgent:
                 reasoning="",
             )
 
-        policies = load_policies()
-        policy: Policy | None = next(
-            (p for p in policies if p.policy_number == claim.policy_number), None
-        )
+        policy: Policy | None = self._policy_repository.get_by_number(claim.policy_number)
 
         prompt = _render_claim_prompt(claim, policy)
 
@@ -207,7 +207,6 @@ class FnolAgent:
                 ),
             )
 
-        # --- Authority engine ---
         proposed_tier = _string_to_tier(decision.tier)
         proposed_decision = _string_to_decision(decision.decision)
         if proposed_decision is None:
@@ -221,19 +220,22 @@ class FnolAgent:
             )
         proposed_payout = Decimal(str(decision.payout_amount))
 
-        ruling = self._authority.evaluate(
+        request = ClaimDecisionRequest(
             claim=claim,
-            thresholds=self._thresholds,
+            policy=policy,
             proposed_decision=proposed_decision,
             proposed_payout=proposed_payout,
             proposed_tier=proposed_tier,
         )
+        ruling = self._engine.evaluate(request)
 
         reasoning_combined = f"Model: {decision.reasoning}\nHarness: {ruling.reason}"
         if ruling.overridden:
             reasoning_combined += " [OVERRIDDEN]"
         if ruling.tier_disagreement:
             reasoning_combined += " [TIER_DISAGREEMENT]"
+        if ruling.payout_overridden:
+            reasoning_combined += " [PAYOUT_OVERRIDDEN]"
 
         return AgentRunResult(
             tier_assigned=_tier_to_expected_tier(ruling.computed_tier),
@@ -249,9 +251,20 @@ if __name__ == "__main__":
     import asyncio
 
     from evals.scenarios import load_scenario
+    from harness.policy_engine import (
+        AuthorityEngine,
+        HarnessPolicyEngine,
+        MockDataPolicyRepository,
+        load_thresholds,
+    )
 
     async def main() -> None:
-        agent = FnolAgent()
+        thresholds = load_thresholds(Path("config/thresholds.yaml"))
+        permissions = load_permissions(Path("config/permissions.yaml"))
+        authority = AuthorityEngine(permissions.tier_authority)
+        decision_engine = HarnessPolicyEngine(authority, thresholds)
+        repository = MockDataPolicyRepository()
+        agent = FnolAgent(decision_engine, repository)
         scenario = load_scenario(Path("evals/scenarios/green-001-clean-collision.yaml"))
         result = await agent.run_scenario(scenario)
         print(f"Result: {result}")
