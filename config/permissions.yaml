@@ -67,5 +67,6 @@ response_normalizer:
   # Defaults applied when AgentDecision required fields are missing
   # from the model's output.
   defaults:
+    tier: yellow
     payout_amount: 0.0
     reasoning: "(no reasoning provided by model)"

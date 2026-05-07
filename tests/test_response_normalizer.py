@@ -109,6 +109,20 @@ def test_applies_defaults(
     assert normalizer.field_defaults_applied == 2
 
 
+def test_applies_defaults_when_field_is_explicitly_null(
+    normalizer: ResponseNormalizer, normalizer_config: ResponseNormalizerConfig
+) -> None:
+    """An explicit null for a defaulted field is treated like a missing field."""
+    result = normalizer._normalize_text(
+        '{"tier": null, "decision": "escalate"}'
+    )
+
+    assert result is not None
+    parsed = json.loads(result)
+    assert parsed["tier"] == normalizer_config.defaults["tier"]
+    assert normalizer.field_defaults_applied >= 1
+
+
 def test_invalid_json_returns_none(normalizer: ResponseNormalizer) -> None:
     """Unparseable text returns None; no transformation counters are touched."""
     result = normalizer._normalize_text("not json at all")

@@ -118,11 +118,12 @@ class ResponseNormalizer:
                 logger.debug("ResponseNormalizer: renamed field %r -> %r", key, new_name)
 
         for canonical_name, default in self._config.defaults.items():
-            if canonical_name not in parsed:
+            if canonical_name not in parsed or parsed[canonical_name] is None:
                 parsed[canonical_name] = default
                 self.field_defaults_applied += 1
                 logger.debug(
-                    "ResponseNormalizer: applied default for missing field %r", canonical_name
+                    "ResponseNormalizer: applied default for missing-or-null field %r",
+                    canonical_name,
                 )
 
         return json.dumps(parsed)

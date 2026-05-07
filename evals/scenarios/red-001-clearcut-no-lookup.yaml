@@ -1,0 +1,28 @@
+id: red-001-clearcut-no-lookup
+name: Red-tier high-damage claim, no lookup needed
+description: |
+  Red-tier collision with high damage ($8K-$20K range) against an active
+  collision policy. All decision-relevant data is in the prompt-injected
+  policy summary: tier follows from damage, coverage applies, no fraud
+  signals, no missing fields. The model should escalate based on tier
+  alone without calling policy_lookup.
+
+  Tests model restraint: even when a tool is available and the harness
+  permits its use, the model should not call it when context is sufficient.
+  This is the discretion side of "model proposes, harness answers" — the
+  model is responsible for not wasting its own context budget.
+tags:
+  - red
+  - tool-use
+  - discretion
+  - happy-path
+claim_number: CLM-00011
+claimant_message: null
+expected_tier: red
+expected_decision: escalate
+expected_payout_range:
+  min_payout: "0"
+  max_payout: "0"
+tool_call_expectations:
+  - tool_name: policy_lookup
+    must_be_called: false

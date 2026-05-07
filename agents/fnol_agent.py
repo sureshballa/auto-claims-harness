@@ -35,9 +35,10 @@ from harness.contracts import (
     ClaimDecisionRequest,
     PolicyRepository,
 )
-from harness.middleware import ResponseNormalizer
+from harness.middleware import ResponseNormalizer, extract_tool_call_names
 from harness.policy_engine import load_permissions
 from harness.providers import build_chat_client
+from tools.policy_lookup import make_policy_lookup
 
 INSTRUCTIONS = """\
 You are an auto-insurance claims adjudication assistant. Your job is to review
@@ -56,6 +57,17 @@ Choose exactly one:
             if payment is owed; payment may be 0 if damage is below the deductible.
   deny:     Decline a claim — policy not active, no applicable coverage, or fraud indicator.
   escalate: Forward to a human adjuster — missing information, ambiguity, or high-severity tier.
+
+TOOLS
+You may call the following tool when appropriate:
+  policy_lookup(policy_number): Look up a policy by its number. Returns the
+                                policy details if found, or an indicator that
+                                no policy matches.
+
+Use policy_lookup ONLY when you need policy data not already provided in the
+prompt. The claim's primary policy is already shown above; calling
+policy_lookup for the same policy is wasteful. If the prompt provides
+sufficient information to decide, do not call any tools.
 
 RULES
 - If any required information is missing or unclear, choose ESCALATE rather than guess.
@@ -155,12 +167,14 @@ class FnolAgent:
     ) -> None:
         self._engine = claim_decision_engine
         self._policy_repository = policy_repository
+        policy_lookup = make_policy_lookup(self._policy_repository)
         permissions = load_permissions(Path("config/permissions.yaml"))
         self._normalizer = ResponseNormalizer(permissions.response_normalizer)
         client: Any = build_chat_client()  # Any: MAF client type varies by provider
         self._agent: Any = client.as_agent(  # Any: MAF Agent[OptionsCoT], no stub type
             name="FnolAgent",
             instructions=INSTRUCTIONS,
+            tools=[policy_lookup],
         )
 
     async def run_scenario(self, scenario: Scenario) -> AgentRunResult:
@@ -177,12 +191,12 @@ class FnolAgent:
 
         prompt = _render_claim_prompt(claim, policy)
 
-        # print(f"prompt: {prompt}")
+        print(f"prompt: {prompt}")
 
         try:
             response: Any = await self._agent.run(prompt)
             raw_text: str = response.text
-            # print(f"raw_response: {raw_text}")
+            print(f"raw_response: {raw_text}")
         except Exception as exc:
             return AgentRunResult(error=str(exc), reasoning="")
 
@@ -192,7 +206,7 @@ class FnolAgent:
                 tier_assigned=None,
                 decision=None,
                 payout_amount=None,
-                tool_calls_made=[],
+                tool_calls_made=extract_tool_call_names(response),
                 reasoning="",
                 error=f"Normalization failed for raw response: {raw_text[:300]}",
             )
@@ -204,7 +218,7 @@ class FnolAgent:
                 tier_assigned=None,
                 decision=None,
                 payout_amount=None,
-                tool_calls_made=[],
+                tool_calls_made=extract_tool_call_names(response),
                 reasoning="",
                 error=(
                     f"AgentDecision validation failed after normalization: {exc}\n"
@@ -219,7 +233,7 @@ class FnolAgent:
                 tier_assigned=None,
                 decision=None,
                 payout_amount=None,
-                tool_calls_made=[],
+                tool_calls_made=extract_tool_call_names(response),
                 reasoning="",
                 error=f"Model returned unrecognized decision: {decision.decision!r}",
             )
@@ -246,7 +260,7 @@ class FnolAgent:
             tier_assigned=_tier_to_expected_tier(ruling.computed_tier),
             decision=ruling.final_decision,
             payout_amount=ruling.final_payout,
-            tool_calls_made=[],
+            tool_calls_made=extract_tool_call_names(response),
             reasoning=reasoning_combined,
             error=None,
         )
