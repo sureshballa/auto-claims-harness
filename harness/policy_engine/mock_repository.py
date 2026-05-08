@@ -24,12 +24,20 @@ class MockDataPolicyRepository:
     """
 
     def __init__(self) -> None:
-        """Load all policies from mock data and build the lookup index."""
+        """Load all policies from mock data and build lookup indexes."""
         policies = load_policies()
         self._by_number: dict[str, Policy] = {
             policy.policy_number: policy for policy in policies
         }
+        self._by_claimant: dict[str, list[Policy]] = {}
+        for policy in policies:
+            key = policy.policyholder_name.lower()
+            self._by_claimant.setdefault(key, []).append(policy)
 
     def get_by_number(self, policy_number: str) -> Policy | None:
         """Return the Policy with the given policy_number, or None."""
         return self._by_number.get(policy_number)
+
+    def find_by_claimant(self, name: str) -> list[Policy]:
+        """Return all policies for the given policyholder name (case-insensitive)."""
+        return list(self._by_claimant.get(name.lower(), []))

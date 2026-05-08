@@ -24,5 +24,5 @@ expected_payout_range:
   min_payout: "0"
   max_payout: "0"
 tool_call_expectations:
-  - tool_name: policy_lookup
+  - tool_name: policy_lookup_by_number
     must_be_called: false

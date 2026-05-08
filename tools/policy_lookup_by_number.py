@@ -1,4 +1,4 @@
-"""Policy lookup tool — model-callable wrapper around PolicyRepository.
+"""Policy lookup by number tool — model-callable wrapper around PolicyRepository.get_by_number.
 
 Wraps PolicyRepository.get_by_number() so the agent can verify policy details
 during claim adjudication. Using a tool instead of embedding policy data in
@@ -15,8 +15,8 @@ from agent_framework import FunctionTool, tool
 from harness.contracts import PolicyRepository
 
 
-def make_policy_lookup(repository: PolicyRepository) -> FunctionTool:
-    """Return a policy_lookup tool bound to the given repository via closure.
+def make_policy_lookup_by_number(repository: PolicyRepository) -> FunctionTool:
+    """Return a policy_lookup_by_number tool bound to the given repository via closure.
 
     Closure-bound repository keeps the tool decoupled from agent state and
     matches Stage 2's dependency-injection pattern — the agent passes in its
@@ -24,17 +24,18 @@ def make_policy_lookup(repository: PolicyRepository) -> FunctionTool:
     """
 
     @tool(
-        name="policy_lookup",
+        name="policy_lookup_by_number",
         description=(
-            "Look up an insurance policy by its policy number. Returns the policy "
-            "details if found, or an indicator that no policy with that number exists."
+            "Look up an insurance policy by its policy number. Use this tool when you "
+            "have a specific policy number and need that policy's details. Returns the "
+            "policy details if found, or an indicator that no policy with that number exists."
         ),
     )
-    def policy_lookup(policy_number: str) -> dict[str, Any]:  # Any: Pydantic model_dump return
+    def policy_lookup_by_number(policy_number: str) -> dict[str, Any]:  # Any: Pydantic model_dump
         """Retrieve a policy record by number. Returns found=True with data, or found=False."""
         result = repository.get_by_number(policy_number)
         if result is None:
             return {"found": False, "policy_number": policy_number}
         return {"found": True, "policy": result.model_dump(mode="json")}
 
-    return policy_lookup
+    return policy_lookup_by_number

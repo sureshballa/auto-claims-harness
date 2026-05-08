@@ -1,0 +1,35 @@
+id: yellow-002-multi-policy-claimant
+name: Yellow-tier claim with multi-policy claimant
+description: |
+  Yellow-tier collision claim against an active policy. The claimant
+  (Morgan Diaz) holds 5 policies in total. A diligent adjudicator should
+  use policy_lookup_by_claimant to surface this multi-policy holding as
+  enrichment context — multi-policy holders warrant a fraud-pattern check
+  before approval, and the count itself is worth flagging in the
+  escalation reasoning.
+
+  Tests model initiative on tool use: the prompt provides only the single
+  policy linked to the claim. To know the claimant has other policies,
+  the model must call policy_lookup_by_claimant. The harness then forces
+  escalate (yellow tier override) regardless of model decision, but the
+  tool-call assertion is the load-bearing behavioral signal.
+
+  Note: this scenario tests whether the model RECOGNIZES the value of
+  enrichment lookups. That's a stronger ask than restraint (red-001) —
+  initiative is harder to elicit reliably than restraint. Per-run variance
+  on the lookup call is expected; aggregate reliability is the metric.
+tags:
+  - yellow
+  - tool-use
+  - initiative
+  - enrichment
+claim_number: CLM-00006
+claimant_message: null
+expected_tier: yellow
+expected_decision: escalate
+expected_payout_range:
+  min_payout: "0"
+  max_payout: "0"
+tool_call_expectations:
+  - tool_name: policy_lookup_by_claimant
+    must_be_called: true

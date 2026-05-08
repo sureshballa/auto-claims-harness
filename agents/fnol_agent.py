@@ -38,7 +38,8 @@ from harness.contracts import (
 from harness.middleware import ResponseNormalizer, extract_tool_call_names
 from harness.policy_engine import load_permissions
 from harness.providers import build_chat_client
-from tools.policy_lookup import make_policy_lookup
+from tools.policy_lookup_by_claimant import make_policy_lookup_by_claimant
+from tools.policy_lookup_by_number import make_policy_lookup_by_number
 
 INSTRUCTIONS = """\
 You are an auto-insurance claims adjudication assistant. Your job is to review
@@ -59,15 +60,23 @@ Choose exactly one:
   escalate: Forward to a human adjuster — missing information, ambiguity, or high-severity tier.
 
 TOOLS
-You may call the following tool when appropriate:
-  policy_lookup(policy_number): Look up a policy by its number. Returns the
-                                policy details if found, or an indicator that
-                                no policy matches.
+You may call either of the following tools when appropriate:
+  policy_lookup_by_number(policy_number): Look up a single policy by its number.
+                                          Returns policy details if found, or an
+                                          indicator that no policy matches.
+  policy_lookup_by_claimant(name):        Find all policies belonging to a claimant
+                                          by their full name (case-insensitive).
+                                          Returns a list of matching policies and
+                                          a count, or an indicator that none match.
 
-Use policy_lookup ONLY when you need policy data not already provided in the
-prompt. The claim's primary policy is already shown above; calling
-policy_lookup for the same policy is wasteful. If the prompt provides
-sufficient information to decide, do not call any tools.
+Use these tools ONLY when you need data not already provided in the prompt:
+  - policy_lookup_by_number: rarely needed, since the claim's primary policy is
+    already shown above. Calling it for that same policy is wasteful.
+  - policy_lookup_by_claimant: useful when you want to check whether a claimant
+    holds multiple policies, which can be a fraud-pattern signal worth surfacing
+    in your reasoning or escalation rationale.
+
+If the prompt provides sufficient information to decide, do not call any tools.
 
 RULES
 - If any required information is missing or unclear, choose ESCALATE rather than guess.
@@ -167,14 +176,15 @@ class FnolAgent:
     ) -> None:
         self._engine = claim_decision_engine
         self._policy_repository = policy_repository
-        policy_lookup = make_policy_lookup(self._policy_repository)
+        policy_lookup_by_number = make_policy_lookup_by_number(self._policy_repository)
+        policy_lookup_by_claimant = make_policy_lookup_by_claimant(self._policy_repository)
         permissions = load_permissions(Path("config/permissions.yaml"))
         self._normalizer = ResponseNormalizer(permissions.response_normalizer)
         client: Any = build_chat_client()  # Any: MAF client type varies by provider
         self._agent: Any = client.as_agent(  # Any: MAF Agent[OptionsCoT], no stub type
             name="FnolAgent",
             instructions=INSTRUCTIONS,
-            tools=[policy_lookup],
+            tools=[policy_lookup_by_number, policy_lookup_by_claimant],
         )
 
     async def run_scenario(self, scenario: Scenario) -> AgentRunResult:

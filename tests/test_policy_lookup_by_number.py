@@ -1,4 +1,4 @@
-"""Tests for tools/policy_lookup.py."""
+"""Tests for tools/policy_lookup_by_number.py."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from datetime import date
 from decimal import Decimal
 
 from domain.models import Coverage, CoverageType, Policy, Vehicle
-from tools.policy_lookup import make_policy_lookup
+from tools.policy_lookup_by_number import make_policy_lookup_by_number
 
 _VIN = "1HGBH41JXMN109186"  # 17 chars
 
@@ -20,6 +20,10 @@ class _StubRepo:
     def get_by_number(self, policy_number: str) -> Policy | None:
         """Return the stored policy regardless of the number passed."""
         return self._policy
+
+    def find_by_claimant(self, name: str) -> list[Policy]:
+        """Not used by policy_lookup_by_number; satisfies PolicyRepository Protocol."""
+        return []
 
 
 def _make_policy() -> Policy:
@@ -51,7 +55,7 @@ def _make_policy() -> Policy:
 def test_returns_found_true_with_policy_data_when_repository_has_policy() -> None:
     """Tool returns found=True and full policy data when the repository has the policy."""
     policy = _make_policy()
-    tool = make_policy_lookup(_StubRepo(policy))
+    tool = make_policy_lookup_by_number(_StubRepo(policy))
     result = tool(policy_number="POL-TEST-001")
 
     assert result["found"] is True
@@ -62,7 +66,7 @@ def test_returns_found_true_with_policy_data_when_repository_has_policy() -> Non
 
 def test_returns_found_false_when_repository_returns_none() -> None:
     """Tool returns found=False with the queried number when the repository has no match."""
-    tool = make_policy_lookup(_StubRepo(None))
+    tool = make_policy_lookup_by_number(_StubRepo(None))
     result = tool(policy_number="POL-MISSING")
 
     assert result["found"] is False
@@ -72,7 +76,7 @@ def test_returns_found_false_when_repository_returns_none() -> None:
 
 def test_decimal_fields_serialize_to_strings_in_returned_dict() -> None:
     """mode='json' serializes Decimal coverage amounts to strings, not floats."""
-    tool = make_policy_lookup(_StubRepo(_make_policy()))
+    tool = make_policy_lookup_by_number(_StubRepo(_make_policy()))
     result = tool(policy_number="POL-TEST-001")
 
     coverage = result["policy"]["coverages"][0]
@@ -84,7 +88,7 @@ def test_decimal_fields_serialize_to_strings_in_returned_dict() -> None:
 
 def test_date_fields_serialize_to_strings_in_returned_dict() -> None:
     """mode='json' serializes date fields to ISO-format strings, not date objects."""
-    tool = make_policy_lookup(_StubRepo(_make_policy()))
+    tool = make_policy_lookup_by_number(_StubRepo(_make_policy()))
     result = tool(policy_number="POL-TEST-001")
 
     assert result["policy"]["effective_date"] == "2025-01-01"

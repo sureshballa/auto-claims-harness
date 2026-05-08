@@ -5,6 +5,7 @@ a PolicyRepository) via closure. The agent constructs tools at __init__
 time with injected dependencies, then passes them to the MAF agent.
 """
 
-from tools.policy_lookup import make_policy_lookup
+from tools.policy_lookup_by_claimant import make_policy_lookup_by_claimant
+from tools.policy_lookup_by_number import make_policy_lookup_by_number
 
-__all__ = ["make_policy_lookup"]
+__all__ = ["make_policy_lookup_by_claimant", "make_policy_lookup_by_number"]
