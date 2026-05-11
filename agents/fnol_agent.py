@@ -5,7 +5,8 @@ and uses MAF with the configured LLM to produce an AgentRunResult. It is
 deliberately naive:
 
 - Agent-driven response normalization (normalizer called directly; no MAF middleware)
-- No tools (no domain function calls beyond loading seed data)
+- Two policy-lookup tools gated by ToolAuthorizationEngine
+  (model proposes, harness gates)
 - Single short instruction prompt (no chain-of-thought, no examples)
 - Manual JSON parsing of LLM text, then ClaimDecisionEngine enforces harness rules
 
@@ -26,7 +27,7 @@ from pydantic import ValidationError
 
 from domain.mock_data import load_claims
 from domain.models import Claim, Policy
-from domain.tiers import Tier
+from domain.tiers import Tier, TierThresholds, assign_tier
 from evals.agent_protocol import AgentRunResult
 from evals.scenarios import ExpectedDecision, ExpectedTier, Scenario
 from harness.contracts import (
@@ -35,7 +36,8 @@ from harness.contracts import (
     ClaimDecisionRequest,
     PolicyRepository,
 )
-from harness.middleware import ResponseNormalizer, extract_tool_call_names
+from harness.contracts.policy import PolicyEngine
+from harness.middleware import ResponseNormalizer, extract_tool_call_names, gated_tool
 from harness.policy_engine import load_permissions
 from harness.providers import build_chat_client
 from tools.policy_lookup_by_claimant import make_policy_lookup_by_claimant
@@ -173,11 +175,33 @@ class FnolAgent:
         self,
         claim_decision_engine: ClaimDecisionEngine,
         policy_repository: PolicyRepository,
+        thresholds: TierThresholds,
+        policy_engine: PolicyEngine,
     ) -> None:
         self._engine = claim_decision_engine
         self._policy_repository = policy_repository
-        policy_lookup_by_number = make_policy_lookup_by_number(self._policy_repository)
-        policy_lookup_by_claimant = make_policy_lookup_by_claimant(self._policy_repository)
+        self._thresholds = thresholds
+        self._policy_engine = policy_engine
+
+        # NOTE: not safe for concurrent scenario runs on the same FnolAgent instance.
+        # If scenarios are ever parallelized, replace this with a per-call context var.
+        self._current_tier: Tier | None = None
+
+        def _tier_provider() -> Tier:
+            if self._current_tier is None:
+                raise RuntimeError(
+                    "_tier_provider called outside a scenario run — "
+                    "assign_tier must be called before any tool invocations"
+                )
+            return self._current_tier
+
+        raw_by_number = make_policy_lookup_by_number(self._policy_repository)
+        raw_by_claimant = make_policy_lookup_by_claimant(self._policy_repository)
+        policy_lookup_by_number = gated_tool(raw_by_number, self._policy_engine, _tier_provider)
+        policy_lookup_by_claimant = gated_tool(
+            raw_by_claimant, self._policy_engine, _tier_provider
+        )
+
         permissions = load_permissions(Path("config/permissions.yaml"))
         self._normalizer = ResponseNormalizer(permissions.response_normalizer)
         client: Any = build_chat_client()  # Any: MAF client type varies by provider
@@ -198,82 +222,86 @@ class FnolAgent:
             )
 
         policy: Policy | None = self._policy_repository.get_by_number(claim.policy_number)
-
-        prompt = _render_claim_prompt(claim, policy)
-
-        print(f"prompt: {prompt}")
+        self._current_tier = assign_tier(claim, self._thresholds)
 
         try:
-            response: Any = await self._agent.run(prompt)
-            raw_text: str = response.text
-            print(f"raw_response: {raw_text}")
-        except Exception as exc:
-            return AgentRunResult(error=str(exc), reasoning="")
+            prompt = _render_claim_prompt(claim, policy)
 
-        cleaned = self._normalizer.normalize(raw_text)
-        if cleaned is None:
-            return AgentRunResult(
-                tier_assigned=None,
-                decision=None,
-                payout_amount=None,
-                tool_calls_made=extract_tool_call_names(response),
-                reasoning="",
-                error=f"Normalization failed for raw response: {raw_text[:300]}",
+            print(f"prompt: {prompt}")
+
+            try:
+                response: Any = await self._agent.run(prompt)
+                raw_text: str = response.text
+                print(f"raw_response: {raw_text}")
+            except Exception as exc:
+                return AgentRunResult(error=str(exc), reasoning="")
+
+            cleaned = self._normalizer.normalize(raw_text)
+            if cleaned is None:
+                return AgentRunResult(
+                    tier_assigned=None,
+                    decision=None,
+                    payout_amount=None,
+                    tool_calls_made=extract_tool_call_names(response),
+                    reasoning="",
+                    error=f"Normalization failed for raw response: {raw_text[:300]}",
+                )
+
+            try:
+                decision = AgentDecision.model_validate_json(cleaned)
+            except ValidationError as exc:
+                return AgentRunResult(
+                    tier_assigned=None,
+                    decision=None,
+                    payout_amount=None,
+                    tool_calls_made=extract_tool_call_names(response),
+                    reasoning="",
+                    error=(
+                        f"AgentDecision validation failed after normalization: {exc}\n"
+                        f"Cleaned text: {cleaned[:300]}"
+                    ),
+                )
+
+            proposed_tier = _string_to_tier(decision.tier)
+            proposed_decision = _string_to_decision(decision.decision)
+            if proposed_decision is None:
+                return AgentRunResult(
+                    tier_assigned=None,
+                    decision=None,
+                    payout_amount=None,
+                    tool_calls_made=extract_tool_call_names(response),
+                    reasoning="",
+                    error=f"Model returned unrecognized decision: {decision.decision!r}",
+                )
+            proposed_payout = Decimal(str(decision.payout_amount))
+
+            request = ClaimDecisionRequest(
+                claim=claim,
+                policy=policy,
+                proposed_decision=proposed_decision,
+                proposed_payout=proposed_payout,
+                proposed_tier=proposed_tier,
             )
+            ruling = self._engine.evaluate(request)
 
-        try:
-            decision = AgentDecision.model_validate_json(cleaned)
-        except ValidationError as exc:
+            reasoning_combined = f"Model: {decision.reasoning}\nHarness: {ruling.reason}"
+            if ruling.overridden:
+                reasoning_combined += " [OVERRIDDEN]"
+            if ruling.tier_disagreement:
+                reasoning_combined += " [TIER_DISAGREEMENT]"
+            if ruling.payout_overridden:
+                reasoning_combined += " [PAYOUT_OVERRIDDEN]"
+
             return AgentRunResult(
-                tier_assigned=None,
-                decision=None,
-                payout_amount=None,
+                tier_assigned=_tier_to_expected_tier(ruling.computed_tier),
+                decision=ruling.final_decision,
+                payout_amount=ruling.final_payout,
                 tool_calls_made=extract_tool_call_names(response),
-                reasoning="",
-                error=(
-                    f"AgentDecision validation failed after normalization: {exc}\n"
-                    f"Cleaned text: {cleaned[:300]}"
-                ),
+                reasoning=reasoning_combined,
+                error=None,
             )
-
-        proposed_tier = _string_to_tier(decision.tier)
-        proposed_decision = _string_to_decision(decision.decision)
-        if proposed_decision is None:
-            return AgentRunResult(
-                tier_assigned=None,
-                decision=None,
-                payout_amount=None,
-                tool_calls_made=extract_tool_call_names(response),
-                reasoning="",
-                error=f"Model returned unrecognized decision: {decision.decision!r}",
-            )
-        proposed_payout = Decimal(str(decision.payout_amount))
-
-        request = ClaimDecisionRequest(
-            claim=claim,
-            policy=policy,
-            proposed_decision=proposed_decision,
-            proposed_payout=proposed_payout,
-            proposed_tier=proposed_tier,
-        )
-        ruling = self._engine.evaluate(request)
-
-        reasoning_combined = f"Model: {decision.reasoning}\nHarness: {ruling.reason}"
-        if ruling.overridden:
-            reasoning_combined += " [OVERRIDDEN]"
-        if ruling.tier_disagreement:
-            reasoning_combined += " [TIER_DISAGREEMENT]"
-        if ruling.payout_overridden:
-            reasoning_combined += " [PAYOUT_OVERRIDDEN]"
-
-        return AgentRunResult(
-            tier_assigned=_tier_to_expected_tier(ruling.computed_tier),
-            decision=ruling.final_decision,
-            payout_amount=ruling.final_payout,
-            tool_calls_made=extract_tool_call_names(response),
-            reasoning=reasoning_combined,
-            error=None,
-        )
+        finally:
+            self._current_tier = None
 
 
 if __name__ == "__main__":
@@ -282,18 +310,22 @@ if __name__ == "__main__":
     from evals.scenarios import load_scenario
     from harness.policy_engine import (
         AuthorityEngine,
-        HarnessPolicyEngine,
+        HarnessClaimDecisionEngine,
         MockDataPolicyRepository,
         load_thresholds,
     )
+    from harness.policy_engine.tool_allowlist_loader import load_tool_allowlist
+    from harness.policy_engine.tool_authorization_engine import ToolAuthorizationEngine
 
     async def main() -> None:
         thresholds = load_thresholds(Path("config/thresholds.yaml"))
         permissions = load_permissions(Path("config/permissions.yaml"))
         authority = AuthorityEngine(permissions.tier_authority)
-        decision_engine = HarnessPolicyEngine(authority, thresholds)
+        decision_engine = HarnessClaimDecisionEngine(authority, thresholds)
         repository = MockDataPolicyRepository()
-        agent = FnolAgent(decision_engine, repository)
+        allowlist = load_tool_allowlist(Path("config/tool_allowlist.yaml"))
+        policy_engine = ToolAuthorizationEngine(allowlist)
+        agent = FnolAgent(decision_engine, repository, thresholds, policy_engine)
         scenario = load_scenario(Path("evals/scenarios/green-001-clean-collision.yaml"))
         result = await agent.run_scenario(scenario)
         print(f"Result: {result}")

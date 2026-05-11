@@ -72,17 +72,21 @@ if __name__ == "__main__":
             from agents.fnol_agent import FnolAgent
             from harness.policy_engine import (
                 AuthorityEngine,
-                HarnessPolicyEngine,
+                HarnessClaimDecisionEngine,
                 MockDataPolicyRepository,
                 load_permissions,
                 load_thresholds,
             )
+            from harness.policy_engine.tool_allowlist_loader import load_tool_allowlist
+            from harness.policy_engine.tool_authorization_engine import ToolAuthorizationEngine
             thresholds = load_thresholds(Path("config/thresholds.yaml"))
             permissions = load_permissions(Path("config/permissions.yaml"))
             authority = AuthorityEngine(permissions.tier_authority)
-            decision_engine = HarnessPolicyEngine(authority, thresholds)
+            decision_engine = HarnessClaimDecisionEngine(authority, thresholds)
             repository = MockDataPolicyRepository()
-            agent = FnolAgent(decision_engine, repository)
+            allowlist = load_tool_allowlist(Path("config/tool_allowlist.yaml"))
+            policy_engine = ToolAuthorizationEngine(allowlist)
+            agent = FnolAgent(decision_engine, repository, thresholds, policy_engine)
         else:
             print(f"Unknown agent: {agent_kind}. Use 'null' or 'fnol'.")
             sys.exit(1)

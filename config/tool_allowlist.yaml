@@ -1,0 +1,30 @@
+# Tool-call allowlist for the auto-claims harness.
+# Consumed by ToolAuthorizationEngine at startup.
+#
+# Default-deny is the harness's deny-first invariant: if a tool is not
+# listed here, the engine denies it via default_decision. New tools must
+# be added explicitly before the model can call them.
+#
+# Per-entry shape:
+#   default:    baseline decision when no tier-specific rule matches.
+#   tier_rules: per-tier overrides; absent tiers fall through to default.
+
+default_decision: deny
+
+tools:
+  policy_lookup_by_number:
+    # Read-only enrichment — safe on all tiers.
+    default: allow
+    tier_rules: {}
+
+  policy_lookup_by_claimant:
+    # Read-only enrichment — safe on all tiers.
+    default: allow
+    tier_rules: {}
+
+  payment_instruction:
+    # Blast-radius write: disbursing money. Denied by default.
+    # Only Green-tier claims (auto-approvable, low damage) may issue payment.
+    default: deny
+    tier_rules:
+      green: allow

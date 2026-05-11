@@ -1,4 +1,4 @@
-"""Tests for harness/policy_engine/engine.py — HarnessPolicyEngine."""
+"""Tests for harness/policy_engine/claim_decision_engine.py — HarnessClaimDecisionEngine."""
 
 from __future__ import annotations
 
@@ -22,7 +22,9 @@ from domain.models import (
 from domain.tiers import Tier, TierThresholds
 from evals.scenarios import ExpectedDecision
 from harness.contracts.claim_decisions import ClaimDecisionEngine, ClaimDecisionRequest
-from harness.policy_engine import AuthorityEngine, HarnessPolicyEngine, load_permissions
+from harness.policy_engine import AuthorityEngine, HarnessClaimDecisionEngine, load_permissions
+
+_Engine = HarnessClaimDecisionEngine  # alias keeps long fixture/test signatures under 100 chars
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -47,8 +49,8 @@ def authority_engine() -> AuthorityEngine:
 
 
 @pytest.fixture
-def engine(authority_engine: AuthorityEngine, thresholds: TierThresholds) -> HarnessPolicyEngine:
-    return HarnessPolicyEngine(authority_engine, thresholds)
+def engine(authority_engine: AuthorityEngine, thresholds: TierThresholds) -> _Engine:
+    return HarnessClaimDecisionEngine(authority_engine, thresholds)
 
 
 # ---------------------------------------------------------------------------
@@ -123,7 +125,7 @@ def make_policy_with_coverage(
 # ---------------------------------------------------------------------------
 
 
-def test_engine_satisfies_protocol_structurally(engine: HarnessPolicyEngine) -> None:
+def test_engine_satisfies_protocol_structurally(engine: HarnessClaimDecisionEngine) -> None:
     assert isinstance(engine, ClaimDecisionEngine)
 
 
@@ -132,7 +134,7 @@ def test_engine_satisfies_protocol_structurally(engine: HarnessPolicyEngine) -> 
 # ---------------------------------------------------------------------------
 
 
-def test_green_approve_passes_through(engine: HarnessPolicyEngine) -> None:
+def test_green_approve_passes_through(engine: HarnessClaimDecisionEngine) -> None:
     """Green-tier approval must not be overridden."""
     claim = make_claim_with_damage(Decimal("300"))
     policy = make_policy_with_coverage(CoverageType.COLLISION, Decimal("25000"), Decimal("500"))
@@ -148,7 +150,7 @@ def test_green_approve_passes_through(engine: HarnessPolicyEngine) -> None:
     assert ruling.overridden is False
 
 
-def test_yellow_approve_overridden_to_escalate(engine: HarnessPolicyEngine) -> None:
+def test_yellow_approve_overridden_to_escalate(engine: HarnessClaimDecisionEngine) -> None:
     """Yellow-tier claim: model's approve must be overridden to escalate."""
     claim = make_claim_with_damage(Decimal("3000"))
     policy = make_policy_with_coverage(CoverageType.COLLISION, Decimal("25000"), Decimal("500"))
@@ -168,7 +170,7 @@ def test_yellow_approve_overridden_to_escalate(engine: HarnessPolicyEngine) -> N
 # ---------------------------------------------------------------------------
 
 
-def test_approve_uses_deterministic_payout_below_deductible(engine: HarnessPolicyEngine) -> None:
+def test_approve_uses_deterministic_payout_below_deductible(engine: _Engine) -> None:
     """$300 damage against $500 deductible → harness pays $0 regardless of model proposal."""
     claim = make_claim_with_damage(Decimal("300"))
     policy = make_policy_with_coverage(CoverageType.COLLISION, Decimal("25000"), Decimal("500"))
@@ -183,7 +185,7 @@ def test_approve_uses_deterministic_payout_below_deductible(engine: HarnessPolic
     assert ruling.payout_overridden is True
 
 
-def test_approve_uses_deterministic_payout_in_range(engine: HarnessPolicyEngine) -> None:
+def test_approve_uses_deterministic_payout_in_range(engine: HarnessClaimDecisionEngine) -> None:
     """Model proposes wrong amount; harness substitutes calculate_payout result."""
     claim = make_claim_with_damage(Decimal("400"))
     policy = make_policy_with_coverage(CoverageType.COLLISION, Decimal("1000"), Decimal("0"))
@@ -199,7 +201,7 @@ def test_approve_uses_deterministic_payout_in_range(engine: HarnessPolicyEngine)
     assert ruling.payout_overridden is True
 
 
-def test_approve_payout_capped_at_limit(engine: HarnessPolicyEngine) -> None:
+def test_approve_payout_capped_at_limit(engine: HarnessClaimDecisionEngine) -> None:
     """Payout cannot exceed the coverage limit even if damage exceeds it."""
     claim = make_claim_with_damage(Decimal("400"))
     policy = make_policy_with_coverage(CoverageType.COLLISION, Decimal("200"), Decimal("0"))
@@ -215,7 +217,7 @@ def test_approve_payout_capped_at_limit(engine: HarnessPolicyEngine) -> None:
     assert ruling.payout_overridden is True
 
 
-def test_approve_payout_zero_when_policy_is_none(engine: HarnessPolicyEngine) -> None:
+def test_approve_payout_zero_when_policy_is_none(engine: HarnessClaimDecisionEngine) -> None:
     """Adversarial claim with no resolvable policy: approved decision, zero payout."""
     claim = make_claim_with_damage(Decimal("400"))
     request = ClaimDecisionRequest(
@@ -230,7 +232,7 @@ def test_approve_payout_zero_when_policy_is_none(engine: HarnessPolicyEngine) ->
     assert ruling.payout_overridden is True
 
 
-def test_approve_payout_zero_when_no_applicable_coverage(engine: HarnessPolicyEngine) -> None:
+def test_approve_payout_zero_when_no_applicable_coverage(engine: _Engine) -> None:
     """COLLISION claim against a LIABILITY-only policy: coverage_applies returns None."""
     claim = make_claim_with_damage(Decimal("400"))
     # Only LIABILITY coverage — does not apply to collision incident
@@ -246,7 +248,7 @@ def test_approve_payout_zero_when_no_applicable_coverage(engine: HarnessPolicyEn
     assert ruling.payout_overridden is True
 
 
-def test_approve_payout_zero_when_damage_is_none(engine: HarnessPolicyEngine) -> None:
+def test_approve_payout_zero_when_damage_is_none(engine: HarnessClaimDecisionEngine) -> None:
     """Claim with no damage assessment: tier defaults to YELLOW, escalated, payout=0."""
     claim = make_claim_with_damage(None)
     policy = make_policy_with_coverage(CoverageType.COLLISION, Decimal("25000"), Decimal("0"))
@@ -268,7 +270,7 @@ def test_approve_payout_zero_when_damage_is_none(engine: HarnessPolicyEngine) ->
 # ---------------------------------------------------------------------------
 
 
-def test_payout_zero_on_deny(engine: HarnessPolicyEngine) -> None:
+def test_payout_zero_on_deny(engine: HarnessClaimDecisionEngine) -> None:
     """Green-tier deny: authority accepts it, but engine zeroes payout regardless."""
     claim = make_claim_with_damage(Decimal("400"))
     policy = make_policy_with_coverage(CoverageType.COLLISION, Decimal("25000"), Decimal("0"))
@@ -285,7 +287,7 @@ def test_payout_zero_on_deny(engine: HarnessPolicyEngine) -> None:
     assert ruling.payout_overridden is True
 
 
-def test_payout_zero_on_escalate(engine: HarnessPolicyEngine) -> None:
+def test_payout_zero_on_escalate(engine: HarnessClaimDecisionEngine) -> None:
     """Yellow-tier overridden to escalate: both decision and payout flags set."""
     claim = make_claim_with_damage(Decimal("3000"))
     policy = make_policy_with_coverage(CoverageType.COLLISION, Decimal("25000"), Decimal("0"))
@@ -302,7 +304,7 @@ def test_payout_zero_on_escalate(engine: HarnessPolicyEngine) -> None:
     assert ruling.payout_overridden is True
 
 
-def test_no_payout_override_when_amounts_match(engine: HarnessPolicyEngine) -> None:
+def test_no_payout_override_when_amounts_match(engine: HarnessClaimDecisionEngine) -> None:
     """Model proposes exactly the deterministic amount: payout_overridden must be False."""
     claim = make_claim_with_damage(Decimal("400"))
     policy = make_policy_with_coverage(CoverageType.COLLISION, Decimal("1000"), Decimal("0"))
@@ -323,7 +325,7 @@ def test_no_payout_override_when_amounts_match(engine: HarnessPolicyEngine) -> N
 # ---------------------------------------------------------------------------
 
 
-def test_ruling_records_proposed_values(engine: HarnessPolicyEngine) -> None:
+def test_ruling_records_proposed_values(engine: HarnessClaimDecisionEngine) -> None:
     """The ruling must echo the request's proposal fields unchanged for audit."""
     claim = make_claim_with_damage(Decimal("400"))
     policy = make_policy_with_coverage(CoverageType.COLLISION, Decimal("1000"), Decimal("0"))
@@ -340,7 +342,7 @@ def test_ruling_records_proposed_values(engine: HarnessPolicyEngine) -> None:
     assert ruling.proposed_tier == request.proposed_tier
 
 
-def test_reason_mentions_payout_adjustment_when_appropriate(engine: HarnessPolicyEngine) -> None:
+def test_reason_mentions_payout_adjustment_when_appropriate(engine: _Engine) -> None:
     """Payout corrected without a decision override: reason must note the adjustment."""
     claim = make_claim_with_damage(Decimal("400"))
     policy = make_policy_with_coverage(CoverageType.COLLISION, Decimal("1000"), Decimal("0"))
@@ -356,7 +358,7 @@ def test_reason_mentions_payout_adjustment_when_appropriate(engine: HarnessPolic
     assert "Payout adjusted" in ruling.reason
 
 
-def test_reason_not_doubled_when_decision_also_overridden(engine: HarnessPolicyEngine) -> None:
+def test_reason_not_doubled_when_decision_also_overridden(engine: _Engine) -> None:
     """Decision override already explains the ruling; no redundant payout-adjustment text."""
     claim = make_claim_with_damage(Decimal("3000"))
     policy = make_policy_with_coverage(CoverageType.COLLISION, Decimal("25000"), Decimal("0"))

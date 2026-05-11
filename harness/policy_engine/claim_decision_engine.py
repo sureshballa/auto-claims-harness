@@ -18,7 +18,7 @@ from harness.contracts.claim_decisions import ClaimDecisionRequest, ClaimDecisio
 from harness.policy_engine.authority import AuthorityEngine
 
 
-class HarnessPolicyEngine:
+class HarnessClaimDecisionEngine:
     """Concrete ClaimDecisionEngine that composes authority enforcement
     with deterministic payout calculation.
 
